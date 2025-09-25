@@ -1,0 +1,94 @@
+{
+  "name": "AI-Enhanced Neon Gallery",
+  "short_name": "AI Gallery",
+  "description": "Discover cutting-edge applications with AI-powered personalization and intelligent recommendations",
+  "version": "1.0.0",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#00d9ff",
+  "background_color": "#0a0a12",
+  "scope": "/",
+  "lang": "en-US",
+  "dir": "ltr",
+  "categories": ["productivity", "utilities", "developer", "ai"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' fill='%23000' rx='20'/><circle cx='96' cy='96' r='60' fill='none' stroke='%2300d9ff' stroke-width='4'/><circle cx='96' cy='76' r='8' fill='%2300d9ff'/><circle cx='76' cy='116' r='6' fill='%2300d9ff'/><circle cx='116' cy='116' r='6' fill='%2300d9ff'/><path d='M76 96h40M86 86l10 10M106 86l-10 10' stroke='%2300d9ff' stroke-width='3' stroke-linecap='round'/></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%23000' rx='50'/><circle cx='256' cy='256' r='160' fill='none' stroke='%2300d9ff' stroke-width='12'/><circle cx='256' cy='196' r='20' fill='%2300d9ff'/><circle cx='196' cy='316' r='16' fill='%2300d9ff'/><circle cx='316' cy='316' r='16' fill='%2300d9ff'/><path d='M196 256h120M216 216l40 40M296 216l-40 40' stroke='%2300d9ff' stroke-width='8' stroke-linecap='round'/></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1280 720'><rect width='1280' height='720' fill='%230a0a12'/><rect x='40' y='40' width='1200' height='80' fill='%2312121a' rx='10'/><text x='640' y='90' text-anchor='middle' fill='%2300d9ff' font-size='24' font-family='Arial'>AI-Enhanced Gallery</text><rect x='40' y='140' width='380' height='540' fill='%2312121a' rx='15'/><rect x='440' y='140' width='380' height='260' fill='%2312121a' rx='15'/><rect x='840' y='140' width='380' height='260' fill='%2312121a' rx='15'/><rect x='440' y='420' width='380' height='260' fill='%2312121a' rx='15'/><rect x='840' y='420' width='380' height='260' fill='%2312121a' rx='15'/></svg>",
+      "sizes": "1280x720",
+      "type": "image/svg+xml",
+      "form_factor": "wide",
+      "label": "AI Gallery Desktop View"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 390 844'><rect width='390' height='844' fill='%230a0a12'/><rect x='20' y='50' width='350' height='60' fill='%2312121a' rx='10'/><text x='195' y='85' text-anchor='middle' fill='%2300d9ff' font-size='16' font-family='Arial'>AI Gallery</text><rect x='20' y='130' width='350' height='200' fill='%2312121a' rx='15'/><rect x='20' y='350' width='350' height='180' fill='%2312121a' rx='15'/><rect x='20' y='550' width='350' height='180' fill='%2312121a' rx='15'/><rect x='20' y='750' width='350' height='70' fill='%2312121a' rx='15'/></svg>",
+      "sizes": "390x844",
+      "type": "image/svg+xml",
+      "form_factor": "narrow",
+      "label": "AI Gallery Mobile View"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Search Apps",
+      "short_name": "Search",
+      "url": "/?action=search",
+      "description": "Search for applications",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300d9ff'><path d='M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z'/></svg>",
+          "sizes": "24x24",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "My Favorites",
+      "short_name": "Favorites",
+      "url": "/?action=favorites",
+      "description": "View your favorite apps",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff6b6b'><path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/></svg>",
+          "sizes": "24x24",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Trending",
+      "short_name": "Trending",
+      "url": "/?action=trending",
+      "description": "View trending applications",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300d9ff'><path d='M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z'/></svg>",
+          "sizes": "24x24",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "navigate-new"
+  }
+}
