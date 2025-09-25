@@ -3,31 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="AI-Enhanced Neon Gallery - Discover cutting-edge applications with intelligent recommendations">
+  <meta name="description" content="GyroTechPro Gallery - Discover cutting-edge GTP applications with intelligent recommendations">
   <meta name="keywords" content="AI, applications, gallery, tools, games, productivity">
-  <meta name="author" content="AI Gallery Team">
-  
+  <meta name="author" content="GTP Team">
+
   <!-- Open Graph tags for social sharing -->
-  <meta property="og:title" content="AI-Enhanced Neon Gallery">
-  <meta property="og:description" content="Discover cutting-edge applications with AI-powered recommendations">
+  <meta property="og:title" content="GyroTechPro Gallery">
+  <meta property="og:description" content="Discover cutting-edge applications">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://ai-gallery.example.com">
-  
-  <title>AI-Enhanced Neon Gallery</title>
-  
+  <meta property="og:url" content="http://gyrotechpro.com">
+
+  <title>GTP - GyroTechPro Gallery</title>
+
   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
-  
+
   <!-- External CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="styles.css">
-  
+
   <!-- Web App Manifest for PWA -->
   <link rel="manifest" href="manifest.json">
-  
+
   <!-- Theme color for mobile browsers -->
   <meta name="theme-color" content="#00d9ff">
-  
+
   <!-- Preconnect to external domains for performance -->
   <link rel="preconnect" href="https://images.unsplash.com">
   <link rel="preconnect" href="https://cdnjs.cloudflare.com">
@@ -53,9 +53,9 @@
         <!-- Search Container -->
         <div class="search-container">
           <i class="fas fa-search search-icon"></i>
-          <input 
-            type="text" 
-            class="search-input" 
+          <input
+            type="text"
+            class="search-input"
             placeholder="Search apps, categories, or features..."
             id="searchInput"
             aria-label="Search gallery items"
@@ -67,7 +67,7 @@
           <!-- Search Suggestions -->
           <div class="search-suggestions" id="searchSuggestions"></div>
         </div>
-        
+
         <!-- Category Filter -->
         <select class="category-filter" id="categoryFilter" aria-label="Filter by category">
           <option value="">All Categories</option>
@@ -78,7 +78,7 @@
           <option value="ai-ml">AI & ML</option>
           <option value="productivity">Productivity</option>
         </select>
-        
+
         <!-- Sort Options -->
         <select class="sort-filter" id="sortFilter" aria-label="Sort applications">
           <option value="name">Name A-Z</option>
@@ -86,7 +86,7 @@
           <option value="recent">Recently Added</option>
           <option value="rating">Highest Rated</option>
         </select>
-        
+
         <!-- View Toggle -->
         <div class="view-toggle">
           <button class="view-btn active" data-view="grid" aria-label="Grid view" title="Grid View">
@@ -99,16 +99,16 @@
             <i class="fas fa-th-large"></i>
           </button>
         </div>
-        
+
         <!-- Theme Selector -->
         <div class="theme-selector">
           <div class="theme-btn neon active" data-theme="default" title="Neon Theme" tabindex="0" role="button" aria-label="Neon theme"></div>
           <div class="theme-btn dark" data-theme="theme-dark" title="Dark Theme" tabindex="0" role="button" aria-label="Dark theme"></div>
           <div class="theme-btn light" data-theme="theme-light" title="Light Theme" tabindex="0" role="button" aria-label="Light theme"></div>
-          <div class="theme-btn cyberpunk" data-theme="theme-cyberpunk" title="Cyberpunk Theme" tabindex="0" role="button" aria-label="Cyberpunk theme"></div>
+          <div class="theme-btn cyberpunk" data-theme="theme-cyberpunk" title="Cyber Theme" tabindex="0" role="button" aria-label="Cyber theme"></div>
           <div class="theme-btn ocean" data-theme="theme-ocean" title="Ocean Theme" tabindex="0" role="button" aria-label="Ocean theme"></div>
         </div>
-        
+
         <!-- User Menu -->
         <div class="user-menu">
           <button class="user-menu-btn" id="userMenuBtn" aria-label="User menu">
@@ -137,7 +137,7 @@
   <!-- AI Status Indicator -->
   <div class="ai-status" id="aiStatus">
     <div class="ai-status-dot"></div>
-    <span id="aiStatusText">AI Agent Ready</span>
+    <span id="aiStatusText">GTP Ready</span>
   </div>
 
   <!-- Toast Container -->
@@ -147,9 +147,9 @@
   <main class="main-content">
     <!-- Intro Section -->
     <section class="intro-section">
-      <h1>AI-Enhanced Neon Gallery</h1>
+      <h1>GTP - GyroTechPro Gallery</h1>
       <p>Discover a curated collection of cutting-edge applications with AI-powered personalization, intelligent categorization, and real-time customization features</p>
-      
+
       <!-- Quick Stats -->
       <div class="quick-stats">
         <div class="stat-item">
@@ -328,7 +328,7 @@
       <i class="fas fa-robot"></i>
       <div class="chat-notification" id="chatNotification">1</div>
     </button>
-    
+
     <div class="chat-window" id="chatWindow" role="dialog" aria-label="AI Assistant Chat">
       <div class="chat-header">
         <div class="chat-avatar" id="chatAvatar"></div>
@@ -339,7 +339,7 @@
         <div class="chat-actions">
           <!-- Language Selector -->
           <div class="language-selector">
-            <button class="language-btn" onclick="aiAgent.toggleLanguageDropdown()" id="languageBtn" 
+            <button class="language-btn" onclick="aiAgent.toggleLanguageDropdown()" id="languageBtn"
                     aria-haspopup="listbox" aria-expanded="false">
               <span class="flag">🇺🇸</span> <span id="currentLanguage">EN</span>
               <i class="fas fa-chevron-down"></i>
@@ -362,19 +362,19 @@
               </div>
             </div>
           </div>
-          
+
           <!-- Audio Controls -->
           <div class="audio-controls">
-            <button class="audio-btn" id="micBtn" onclick="aiAgent.toggleMicrophone()" 
+            <button class="audio-btn" id="micBtn" onclick="aiAgent.toggleMicrophone()"
                     title="Voice input" aria-label="Toggle microphone">
               <i class="fas fa-microphone"></i>
             </button>
-            <button class="audio-btn" id="speakerBtn" onclick="aiAgent.toggleSpeaker()" 
+            <button class="audio-btn" id="speakerBtn" onclick="aiAgent.toggleSpeaker()"
                     title="Voice output" aria-label="Toggle speaker">
               <i class="fas fa-volume-up"></i>
             </button>
           </div>
-          
+
           <button class="chat-action-btn" onclick="clearChat()" title="Clear chat history" aria-label="Clear chat">
             <i class="fas fa-trash"></i>
           </button>
@@ -386,7 +386,7 @@
           </button>
         </div>
       </div>
-      
+
       <div class="chat-messages" id="chatMessages" role="log" aria-label="Chat messages">
         <!-- Welcome message will be added by JavaScript -->
       </div>
@@ -398,7 +398,7 @@
             📈 Trending
           </button>
           <button class="quick-action" onclick="sendQuickMessage('Change theme to dark')">
-            🌙 Dark Theme  
+            🌙 Dark Theme
           </button>
           <button class="quick-action" onclick="sendQuickMessage('Recommend AI tools')">
             🤖 AI Tools
@@ -410,7 +410,7 @@
             ❤️ Favorites
           </button>
         </div>
-        
+
         <!-- Typing Indicator -->
         <div class="typing-indicator" id="typingIndicator">
           <div class="typing-dots">
@@ -419,12 +419,12 @@
             <span></span>
           </div>
         </div>
-        
+
         <!-- Chat Input -->
         <div class="chat-input">
           <div class="input-wrapper">
-            <textarea 
-              id="chatInput" 
+            <textarea
+              id="chatInput"
               placeholder="Ask me to customize your experience, search for apps, or get recommendations..."
               maxlength="500"
               rows="1"

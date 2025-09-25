@@ -1986,7 +1986,7 @@ You're an active explorer! Keep discovering new apps.`;
     
     // Add welcome message
     const welcomeMessage = `
-      👋 Hello! I'm your AI gallery assistant. I can help you:
+      👋 Hello! I'm your GTP gallery assistant. I can help you:
       
       🔍 Search and discover apps
       🎨 Customize themes and layouts  
