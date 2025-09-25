@@ -1,4 +1,4 @@
-// ===== AI GALLERY AGENT - ENHANCED VERSION =====
+AI-Enhanced Gallery// ===== AI GALLERY AGENT - ENHANCED VERSION =====
 
 class AIGalleryAgent {
   constructor() {
@@ -19,7 +19,7 @@ class AIGalleryAgent {
       this.usageStats = {};
       this.userProfile = {};
     }
-    
+
     // Core state
     this.currentTheme = this.personalizations.theme || 'default';
     this.currentView = this.personalizations.view || 'grid';
@@ -28,25 +28,25 @@ class AIGalleryAgent {
     this.activeCategory = '';
     this.activeSort = 'name';
     this.activePlatformSelector = null;
-    
+
     // UI state
     this.isTyping = false;
     this.voiceEnabled = false;
     this.speechEnabled = this.personalizations.speechEnabled || false;
     this.isRecording = false;
-    
+
     // Audio interfaces
     this.speechRecognition = null;
     this.speechSynthesis = window.speechSynthesis;
     this.currentVoice = null;
-    
+
     // Performance tracking
     this.performanceMetrics = {
       loadTime: 0,
       searchTime: 0,
       renderTime: 0
     };
-    
+
     // Language support
     this.translations = {
       en: {
@@ -135,7 +135,7 @@ class AIGalleryAgent {
         filtersCleared: "Todos los filtros borrados."
       }
     };
-    
+
     // Initialize
     this.init();
   }
@@ -144,10 +144,10 @@ class AIGalleryAgent {
   async init() {
     try {
       const startTime = performance.now();
-      
+
       // Show loading screen
       this.showLoadingScreen();
-      
+
       // Initialize components in order
       await this.setupEventListeners();
       await this.populateGallery();
@@ -156,25 +156,25 @@ class AIGalleryAgent {
       this.loadChatHistory();
       this.updateLanguage();
       this.updateStatistics();
-      
+
       // Initialize search suggestions
       this.initializeSearchSuggestions();
-      
+
       // Set up performance monitoring
       this.startPerformanceMonitoring();
-      
+
       // Track initialization time
       this.performanceMetrics.loadTime = performance.now() - startTime;
-      
+
       // Hide loading screen
       setTimeout(() => this.hideLoadingScreen(), 1000);
-      
+
       // Track page load
       this.trackEvent('page_load', {
         loadTime: this.performanceMetrics.loadTime,
         totalApps: this.getTotalAppCount()
       });
-      
+
     } catch (error) {
       console.error('Initialization error:', error);
       this.showToast('Initialization Error', 'Some features may not work properly.', 'error');
@@ -205,35 +205,35 @@ class AIGalleryAgent {
     // Search functionality with debouncing
     const searchInput = document.getElementById('searchInput');
     const searchClear = document.getElementById('searchClear');
-    
+
     if (searchInput) {
       let searchTimeout;
       searchInput.addEventListener('input', (e) => {
         const query = e.target.value;
-        
+
         // Show/hide clear button
         if (searchClear) {
           searchClear.classList.toggle('visible', query.length > 0);
         }
-        
+
         // Debounce search
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
           this.handleSearch(query);
         }, 300);
       });
-      
+
       // Search suggestions
       searchInput.addEventListener('focus', () => {
         this.showSearchSuggestions();
       });
-      
+
       searchInput.addEventListener('blur', () => {
         // Delay hiding to allow for clicks
         setTimeout(() => this.hideSearchSuggestions(), 200);
       });
     }
-    
+
     // Clear search
     if (searchClear) {
       searchClear.addEventListener('click', () => {
@@ -242,23 +242,23 @@ class AIGalleryAgent {
         this.handleSearch('');
       });
     }
-    
+
     // Filters
     const categoryFilter = document.getElementById('categoryFilter');
     const sortFilter = document.getElementById('sortFilter');
-    
+
     if (categoryFilter) {
       categoryFilter.addEventListener('change', (e) => {
         this.handleCategoryFilter(e.target.value);
       });
     }
-    
+
     if (sortFilter) {
       sortFilter.addEventListener('change', (e) => {
         this.handleSortChange(e.target.value);
       });
     }
-    
+
     // View toggle - use event delegation
     const viewToggle = document.querySelector('.view-toggle');
     if (viewToggle) {
@@ -269,7 +269,7 @@ class AIGalleryAgent {
         }
       });
     }
-    
+
     // Theme selector - use event delegation
     const themeSelector = document.querySelector('.theme-selector');
     if (themeSelector) {
@@ -280,23 +280,23 @@ class AIGalleryAgent {
         }
       });
     }
-    
+
     // User menu
     const userMenuBtn = document.getElementById('userMenuBtn');
     const userDropdown = document.getElementById('userDropdown');
-    
+
     if (userMenuBtn && userDropdown) {
       userMenuBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         userDropdown.classList.toggle('active');
       });
-      
+
       // Close dropdown when clicking outside
       document.addEventListener('click', () => {
         userDropdown.classList.remove('active');
       });
     }
-    
+
     // Chat input handling
     const chatInput = document.getElementById('chatInput');
     if (chatInput) {
@@ -306,14 +306,14 @@ class AIGalleryAgent {
           this.sendMessage();
         }
       });
-      
+
       // Auto-resize
       chatInput.addEventListener('input', (e) => {
         e.target.style.height = 'auto';
         e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
       });
     }
-    
+
     // Global keyboard shortcuts
     document.addEventListener('keydown', (e) => {
       // Ctrl/Cmd + K for search
@@ -321,19 +321,19 @@ class AIGalleryAgent {
         e.preventDefault();
         if (searchInput) searchInput.focus();
       }
-      
+
       // Ctrl/Cmd + / for chat
       if ((e.ctrlKey || e.metaKey) && e.key === '/') {
         e.preventDefault();
         this.toggleChat();
       }
-      
+
       // Escape key handling
       if (e.key === 'Escape') {
         this.handleEscape();
       }
     });
-    
+
     // Category section collapsing
     document.addEventListener('click', (e) => {
       const categoryHeader = e.target.closest('.category-header');
@@ -344,7 +344,7 @@ class AIGalleryAgent {
         }
       }
     });
-    
+
     // Close platform selectors when clicking outside
     document.addEventListener('click', (e) => {
       if (this.activePlatformSelector && !e.target.closest('.platform-selector')) {
@@ -744,14 +744,14 @@ class AIGalleryAgent {
   async populateGallery() {
     const startTime = performance.now();
     const galleryData = this.getGalleryData();
-    
+
     // Populate each category
     Object.keys(galleryData).forEach(category => {
       const container = document.getElementById(`${category}Gallery`);
       if (container) {
         const apps = galleryData[category];
         container.innerHTML = apps.map(app => this.createAppCard(app, category)).join('');
-        
+
         // Update category count
         const countElement = container.closest('.category-section')?.querySelector('.category-count');
         if (countElement) {
@@ -759,24 +759,24 @@ class AIGalleryAgent {
         }
       }
     });
-    
+
     // Populate trending section
     this.populateTrendingSection();
-    
+
     this.performanceMetrics.renderTime = performance.now() - startTime;
   }
 
   populateTrendingSection() {
     const trendingContainer = document.getElementById('trendingCarousel');
     if (!trendingContainer) return;
-    
+
     // Get featured apps from all categories
     const allApps = this.getAllApps();
     const featuredApps = allApps
       .filter(app => app.featured)
       .sort((a, b) => b.downloads - a.downloads)
       .slice(0, 6);
-    
+
     trendingContainer.innerHTML = featuredApps.map(app => `
       <div class="trending-card" data-app-id="${app.id}">
         <div class="trending-badge">🔥 Trending</div>
@@ -791,7 +791,7 @@ class AIGalleryAgent {
           <span><i class="fas fa-star" style="color: #ffd700;"></i> ${app.rating}</span>
           <span><i class="fas fa-download"></i> ${this.formatNumber(app.downloads)}</span>
         </div>
-        <button class="see-all-btn" onclick="aiAgent.viewApp('${app.id}')" 
+        <button class="see-all-btn" onclick="aiAgent.viewApp('${app.id}')"
                 style="width: 100%; padding: 0.5rem; font-size: 0.8rem;">
           View Details
         </button>
@@ -803,37 +803,37 @@ class AIGalleryAgent {
   createAppCard(app, category) {
     const isFavorite = this.favorites.includes(`${category}-${app.name}`);
     const safeAppId = this.sanitizeId(app.name);
-    
+
     return `
-      <div class="card" data-app="${safeAppId}" data-app-id="${app.id}" data-category="${category}" 
-           data-tags="${app.tags.join(',').toLowerCase()}" data-rating="${app.rating}" 
+      <div class="card" data-app="${safeAppId}" data-app-id="${app.id}" data-category="${category}"
+           data-tags="${app.tags.join(',').toLowerCase()}" data-rating="${app.rating}"
            data-downloads="${app.downloads}" data-date="${app.dateAdded}">
         <div class="card-image">
-          <img src="${app.image}" alt="${app.name} thumbnail" loading="lazy" 
+          <img src="${app.image}" alt="${app.name} thumbnail" loading="lazy"
                onerror="this.src='data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 400 300\"><rect width=\"400\" height=\"300\" fill=\"%23333\"/><text x=\"200\" y=\"150\" text-anchor=\"middle\" fill=\"%23666\" font-family=\"Arial\" font-size=\"14\">Image not found</text></svg>'">
-          <button class="favorite-btn ${isFavorite ? 'active' : ''}" 
-                  onclick="aiAgent.toggleFavorite('${category}', '${app.name}')" 
+          <button class="favorite-btn ${isFavorite ? 'active' : ''}"
+                  onclick="aiAgent.toggleFavorite('${category}', '${app.name}')"
                   aria-label="Toggle favorite" title="${isFavorite ? 'Remove from favorites' : 'Add to favorites'}">
             <i class="fas fa-heart"></i>
           </button>
           ${app.featured ? '<div class="trending-badge" style="position: absolute; top: 10px; left: 10px;">Featured</div>' : ''}
         </div>
-        
+
         <div class="card-tags">
           ${app.tags.slice(0, 3).map(tag => `<span class="tag" onclick="aiAgent.searchByTag('${tag}')">${tag}</span>`).join('')}
           ${app.tags.length > 3 ? `<span class="tag">+${app.tags.length - 3} more</span>` : ''}
         </div>
-        
+
         <h3>${app.name}</h3>
         <p>${app.description}</p>
-        
+
         <div class="card-rating">
           <div class="stars">
             ${this.generateStars(app.rating)}
           </div>
           <span class="rating-text">${app.rating}/5 (${this.formatNumber(app.downloads)} downloads)</span>
         </div>
-        
+
         <div class="card-stats">
           <div class="stat">
             <i class="fas fa-star"></i>
@@ -848,9 +848,9 @@ class AIGalleryAgent {
             <span>${app.language || 'Multi'}</span>
           </div>
         </div>
-        
+
         <div class="links">
-          <a href="${app.demo}" target="_blank" rel="noopener" 
+          <a href="${app.demo}" target="_blank" rel="noopener"
              onclick="aiAgent.trackEvent('demo_click', {app: '${app.name}', category: '${category}'})"
              title="View live demo">
             <i class="fas fa-external-link-alt"></i> Demo
@@ -871,7 +871,7 @@ class AIGalleryAgent {
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 >= 0.5;
     let starsHTML = '';
-    
+
     for (let i = 0; i < 5; i++) {
       if (i < fullStars) {
         starsHTML += '<i class="fas fa-star star"></i>';
@@ -881,27 +881,27 @@ class AIGalleryAgent {
         starsHTML += '<i class="far fa-star star empty"></i>';
       }
     }
-    
+
     return starsHTML;
   }
 
   createPlatformSelector(app, category, safeAppId) {
     const platforms = Object.keys(app.downloadLinks || {});
     if (platforms.length === 0) return '';
-    
+
     const platformIcons = {
       windows: 'fab fa-windows',
-      mac: 'fab fa-apple', 
+      mac: 'fab fa-apple',
       linux: 'fab fa-linux',
       android: 'fab fa-android',
       ios: 'fab fa-apple',
       web: 'fas fa-globe'
     };
-    
+
     const platformNames = {
       windows: 'Windows',
       mac: 'macOS',
-      linux: 'Linux', 
+      linux: 'Linux',
       android: 'Android',
       ios: 'iOS',
       web: 'Web'
@@ -913,7 +913,7 @@ class AIGalleryAgent {
       <div class="platform-selector" id="platformSelector-${category}-${safeAppId}">
         <div class="platform-grid">
           ${platforms.map(platform => `
-            <div class="platform-option ${platform === detectedPlatform ? 'selected' : ''}" 
+            <div class="platform-option ${platform === detectedPlatform ? 'selected' : ''}"
                  data-platform="${platform}" data-url="${app.downloadLinks[platform]}">
               <i class="${platformIcons[platform]}"></i> ${platformNames[platform]}
             </div>
@@ -930,13 +930,13 @@ class AIGalleryAgent {
   detectPlatform() {
     const userAgent = navigator.userAgent.toLowerCase();
     const platform = navigator.platform.toLowerCase();
-    
+
     if (userAgent.includes('android')) return 'android';
     if (userAgent.includes('iphone') || userAgent.includes('ipad')) return 'ios';
     if (platform.includes('win')) return 'windows';
     if (platform.includes('mac')) return 'mac';
     if (platform.includes('linux')) return 'linux';
-    
+
     return 'web';
   }
 
@@ -977,7 +977,7 @@ class AIGalleryAgent {
     const allApps = this.getAllApps();
     const categories = ['Web Apps', 'Mobile Apps', 'Desktop Apps', 'Games', 'AI & ML', 'Productivity'];
     const popularTags = ['AI', 'Productivity', 'Development', 'Creative', 'Analytics', 'Mobile'];
-    
+
     this.searchSuggestions = [
       ...allApps.map(app => ({ type: 'app', text: app.name, icon: 'fas fa-cube' })),
       ...categories.map(cat => ({ type: 'category', text: cat, icon: 'fas fa-folder' })),
@@ -988,31 +988,31 @@ class AIGalleryAgent {
   showSearchSuggestions() {
     const input = document.getElementById('searchInput');
     const suggestions = document.getElementById('searchSuggestions');
-    
+
     if (!input || !suggestions) return;
-    
+
     const query = input.value.toLowerCase().trim();
     if (query.length < 2) {
       suggestions.classList.remove('active');
       return;
     }
-    
+
     const filtered = this.searchSuggestions
       .filter(item => item.text.toLowerCase().includes(query))
       .slice(0, 6);
-    
+
     if (filtered.length === 0) {
       suggestions.classList.remove('active');
       return;
     }
-    
+
     suggestions.innerHTML = filtered.map(item => `
       <div class="suggestion-item" onclick="aiAgent.selectSearchSuggestion('${item.text}', '${item.type}')">
         <i class="${item.icon} suggestion-icon"></i>
         <span>${item.text}</span>
       </div>
     `).join('');
-    
+
     suggestions.classList.add('active');
   }
 
@@ -1030,7 +1030,7 @@ class AIGalleryAgent {
       this.handleSearch(text);
     }
     this.hideSearchSuggestions();
-    
+
     this.trackEvent('search_suggestion_click', { text, type });
   }
 
@@ -1040,7 +1040,7 @@ class AIGalleryAgent {
       input.value = tag;
       this.handleSearch(tag);
     }
-    
+
     this.trackEvent('tag_search', { tag });
   }
 
@@ -1050,7 +1050,7 @@ class AIGalleryAgent {
     this.addToSearchHistory(query);
     this.filterGallery();
     this.performanceMetrics.searchTime = performance.now() - startTime;
-    
+
     if (query) {
       this.trackEvent('search', { query, searchTime: this.performanceMetrics.searchTime });
     }
@@ -1058,7 +1058,7 @@ class AIGalleryAgent {
 
   addToSearchHistory(query) {
     if (!query || this.searchHistory.includes(query)) return;
-    
+
     this.searchHistory.unshift(query);
     if (this.searchHistory.length > 20) {
       this.searchHistory = this.searchHistory.slice(0, 20);
@@ -1070,7 +1070,7 @@ class AIGalleryAgent {
   handleCategoryFilter(category) {
     this.activeCategory = category;
     this.filterGallery();
-    
+
     if (category) {
       this.trackEvent('category_filter', { category });
     }
@@ -1079,20 +1079,20 @@ class AIGalleryAgent {
   handleSortChange(sort) {
     this.activeSort = sort;
     this.sortGallery();
-    
+
     this.trackEvent('sort_change', { sort });
   }
 
   filterGallery() {
     const cards = document.querySelectorAll('.card');
     const sections = document.querySelectorAll('.category-section');
-    
+
     let visibleCount = 0;
-    
+
     sections.forEach(section => {
       const category = section.dataset.category;
       let sectionVisible = false;
-      
+
       // Hide section if category filter doesn't match
       if (this.activeCategory && this.activeCategory !== category) {
         section.style.display = 'none';
@@ -1100,19 +1100,19 @@ class AIGalleryAgent {
       } else {
         section.style.display = 'block';
       }
-      
+
       const sectionCards = section.querySelectorAll('.card');
-      
+
       sectionCards.forEach(card => {
         const appName = card.dataset.app;
         const tags = card.dataset.tags;
         const cardText = card.textContent.toLowerCase();
-        
-        const matchesSearch = !this.searchQuery || 
-          appName.includes(this.searchQuery) || 
+
+        const matchesSearch = !this.searchQuery ||
+          appName.includes(this.searchQuery) ||
           tags.includes(this.searchQuery) ||
           cardText.includes(this.searchQuery);
-        
+
         if (matchesSearch) {
           card.classList.remove('hidden');
           sectionVisible = true;
@@ -1121,23 +1121,23 @@ class AIGalleryAgent {
           card.classList.add('hidden');
         }
       });
-      
+
       // Hide section if no cards are visible
       if (!sectionVisible) {
         section.style.display = 'none';
       }
     });
-    
+
     this.updateSearchResults(visibleCount);
     this.sortGallery();
   }
 
   sortGallery() {
     const galleries = document.querySelectorAll('.gallery');
-    
+
     galleries.forEach(gallery => {
       const cards = Array.from(gallery.querySelectorAll('.card:not(.hidden)'));
-      
+
       cards.sort((a, b) => {
         switch (this.activeSort) {
           case 'stars':
@@ -1151,7 +1151,7 @@ class AIGalleryAgent {
             return a.querySelector('h3').textContent.localeCompare(b.querySelector('h3').textContent);
         }
       });
-      
+
       // Reorder DOM elements
       cards.forEach(card => gallery.appendChild(card));
     });
@@ -1162,11 +1162,11 @@ class AIGalleryAgent {
     const headerElement = document.getElementById('searchResultsHeader');
     const textElement = document.getElementById('searchResultsText');
     const filtersElement = document.getElementById('searchFiltersActive');
-    
+
     if (hasSearch) {
       const t = this.translations[this.currentLanguage];
       let resultText;
-      
+
       if (count === 0) {
         resultText = t.noResults;
       } else if (this.currentLanguage === 'ko') {
@@ -1176,9 +1176,9 @@ class AIGalleryAgent {
       } else {
         resultText = `${count} ${t.found}`;
       }
-      
+
       textElement.textContent = resultText;
-      
+
       // Show active filters
       const activeFilters = [];
       if (this.searchQuery) {
@@ -1188,14 +1188,14 @@ class AIGalleryAgent {
         const categoryName = document.querySelector(`option[value="${this.activeCategory}"]`)?.textContent || this.activeCategory;
         activeFilters.push(`Category: ${categoryName}`);
       }
-      
+
       filtersElement.innerHTML = activeFilters.map(filter => `
         <span class="active-filter">
           ${filter}
           <span class="filter-remove" onclick="aiAgent.removeFilter('${filter}')">&times;</span>
         </span>
       `).join('');
-      
+
       headerElement.classList.add('active');
     } else {
       headerElement.classList.remove('active');
@@ -1221,32 +1221,32 @@ class AIGalleryAgent {
   clearAllFilters() {
     const input = document.getElementById('searchInput');
     const categoryFilter = document.getElementById('categoryFilter');
-    
+
     if (input) {
       input.value = '';
       document.getElementById('searchClear')?.classList.remove('visible');
     }
     if (categoryFilter) categoryFilter.value = '';
-    
+
     this.searchQuery = '';
     this.activeCategory = '';
     this.filterGallery();
-    
+
     this.addMessage('ai', this.translate('filtersCleared', 'All filters cleared.'));
     this.trackEvent('filters_cleared');
   }
 
   backToHome() {
     this.clearAllFilters();
-    
+
     // Show all categories
     document.querySelectorAll('.category-section').forEach(section => {
       section.style.display = 'block';
       section.classList.remove('collapsed');
     });
-    
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    
+
     this.trackEvent('back_to_home');
   }
 
@@ -1257,16 +1257,16 @@ class AIGalleryAgent {
       btn.classList.remove('active');
     });
     document.querySelector(`[data-view="${view}"]`).classList.add('active');
-    
+
     // Apply view to galleries
     document.querySelectorAll('.gallery').forEach(gallery => {
       gallery.className = `gallery ${view}-view`;
     });
-    
+
     this.currentView = view;
     this.personalizations.view = view;
     this.savePersonalizations();
-    
+
     this.addMessage('ai', this.translate('viewChanged', `View changed to ${view}!`));
     this.trackEvent('view_change', { view });
   }
@@ -1275,28 +1275,28 @@ class AIGalleryAgent {
   changeTheme(theme) {
     // Remove existing theme classes
     document.body.classList.remove('theme-dark', 'theme-light', 'theme-cyberpunk', 'theme-ocean');
-    
+
     // Update active theme button
     document.querySelectorAll('.theme-btn').forEach(btn => {
       btn.classList.remove('active');
     });
-    
+
     // Add new theme class and activate button
     if (theme !== 'default') {
       document.body.classList.add(theme);
     }
-    
+
     document.querySelector(`[data-theme="${theme}"]`).classList.add('active');
-    
+
     this.currentTheme = theme;
     this.personalizations.theme = theme;
     this.savePersonalizations();
-    
+
     // Update AI status
     const aiStatus = document.getElementById('aiStatus');
     aiStatus.classList.add('active');
     setTimeout(() => aiStatus.classList.remove('active'), 2000);
-    
+
     const themeName = theme.replace('theme-', '').replace('-', ' ');
     this.addMessage('ai', this.translate('themeChanged', `Theme changed to ${themeName}!`));
     this.trackEvent('theme_change', { theme });
@@ -1306,7 +1306,7 @@ class AIGalleryAgent {
   toggleFavorite(category, appName) {
     const favoriteId = `${category}-${appName}`;
     const index = this.favorites.indexOf(favoriteId);
-    
+
     let message;
     if (index === -1) {
       this.favorites.push(favoriteId);
@@ -1315,9 +1315,9 @@ class AIGalleryAgent {
       this.favorites.splice(index, 1);
       message = this.translate('removedFromFavorites', `Removed ${appName} from favorites.`);
     }
-    
+
     localStorage.setItem('favorites', JSON.stringify(this.favorites));
-    
+
     // Update UI
     const card = document.querySelector(`[data-app="${this.sanitizeId(appName)}"]`);
     if (card) {
@@ -1325,10 +1325,10 @@ class AIGalleryAgent {
       btn.classList.toggle('active');
       btn.title = btn.classList.contains('active') ? 'Remove from favorites' : 'Add to favorites';
     }
-    
+
     // Update statistics
     this.updateStatistics();
-    
+
     this.addMessage('ai', message);
     this.trackEvent('favorite_toggle', {
       app: appName,
@@ -1340,14 +1340,14 @@ class AIGalleryAgent {
   // ===== PLATFORM SELECTOR =====
   showPlatformSelector(category, appName, button) {
     this.closePlatformSelector(); // Close any existing selector
-    
+
     const safeAppId = this.sanitizeId(appName);
     const selector = document.getElementById(`platformSelector-${category}-${safeAppId}`);
-    
+
     if (selector) {
       selector.classList.add('active');
       this.activePlatformSelector = selector;
-      
+
       // Add click handlers for platform options (only once)
       const options = selector.querySelectorAll('.platform-option');
       options.forEach(option => {
@@ -1374,12 +1374,12 @@ class AIGalleryAgent {
   downloadApp(appName, downloadUrl, platform) {
     // Open download URL
     window.open(downloadUrl, '_blank', 'noopener');
-    
+
     // Add chat message
     const platformName = this.getPlatformName(platform);
     const message = this.translate('downloadStarted', `Download started for ${appName} (${platformName})!`);
     this.addMessage('ai', message);
-    
+
     this.trackEvent('download_click', {
       app: appName,
       platform: platform,
@@ -1391,22 +1391,22 @@ class AIGalleryAgent {
   viewApp(appId) {
     const allApps = this.getAllApps();
     const app = allApps.find(a => a.id === appId);
-    
+
     if (!app) return;
-    
+
     // Scroll to the app card and highlight it
     const card = document.querySelector(`[data-app-id="${appId}"]`);
     if (card) {
       card.scrollIntoView({ behavior: 'smooth', block: 'center' });
       card.style.transform = 'scale(1.05)';
       card.style.boxShadow = '0 0 30px var(--accent-glow)';
-      
+
       setTimeout(() => {
         card.style.transform = '';
         card.style.boxShadow = '';
       }, 2000);
     }
-    
+
     this.trackEvent('app_view', { appId, appName: app.name });
   }
 
@@ -1419,7 +1419,7 @@ class AIGalleryAgent {
       this.speechRecognition.continuous = false;
       this.speechRecognition.interimResults = false;
       this.speechRecognition.lang = this.getVoiceLanguage();
-      
+
       this.speechRecognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
         const chatInput = document.getElementById('chatInput');
@@ -1428,21 +1428,21 @@ class AIGalleryAgent {
           this.sendMessage();
         }
       };
-      
+
       this.speechRecognition.onerror = (event) => {
         console.error('Speech recognition error:', event.error);
         this.stopRecording();
         this.addMessage('ai', 'Sorry, I had trouble understanding. Please try again.');
       };
-      
+
       this.speechRecognition.onend = () => {
         this.stopRecording();
       };
     }
-    
+
     // Initialize text-to-speech
     this.updateVoice();
-    
+
     // Load speech preferences
     if (this.speechEnabled) {
       this.toggleSpeaker();
@@ -1455,7 +1455,7 @@ class AIGalleryAgent {
       this.addMessage('ai', message);
       return;
     }
-    
+
     if (this.isRecording) {
       this.stopRecording();
     } else {
@@ -1467,10 +1467,10 @@ class AIGalleryAgent {
     this.isRecording = true;
     const micBtn = document.getElementById('micBtn');
     const statusText = document.getElementById('chatStatusText');
-    
+
     if (micBtn) micBtn.classList.add('recording');
     if (statusText) statusText.textContent = this.translate('listening', 'Listening...');
-    
+
     try {
       this.speechRecognition.start();
       this.trackEvent('voice_recording_start');
@@ -1484,10 +1484,10 @@ class AIGalleryAgent {
     this.isRecording = false;
     const micBtn = document.getElementById('micBtn');
     const statusText = document.getElementById('chatStatusText');
-    
+
     if (micBtn) micBtn.classList.remove('recording');
     if (statusText) statusText.textContent = this.translations[this.currentLanguage].aiStatus;
-    
+
     if (this.speechRecognition) {
       try {
         this.speechRecognition.stop();
@@ -1500,7 +1500,7 @@ class AIGalleryAgent {
   toggleSpeaker() {
     this.speechEnabled = !this.speechEnabled;
     const btn = document.getElementById('speakerBtn');
-    
+
     if (btn) {
       if (this.speechEnabled) {
         btn.classList.add('active');
@@ -1512,20 +1512,20 @@ class AIGalleryAgent {
         btn.title = 'Enable voice output';
       }
     }
-    
+
     this.personalizations.speechEnabled = this.speechEnabled;
     this.savePersonalizations();
-    
+
     this.trackEvent('speech_toggle', { enabled: this.speechEnabled });
   }
 
   updateVoice() {
     if (!this.speechSynthesis) return;
-    
+
     const voices = this.speechSynthesis.getVoices();
     const voiceCode = this.personalizations.voiceCode || this.getVoiceLanguage();
-    
-    this.currentVoice = voices.find(voice => 
+
+    this.currentVoice = voices.find(voice =>
       voice.lang.startsWith(voiceCode) || voice.lang.startsWith(this.currentLanguage)
     ) || voices.find(voice => voice.lang.startsWith('en'));
   }
@@ -1533,7 +1533,7 @@ class AIGalleryAgent {
   getVoiceLanguage() {
     const languageMap = {
       ko: 'ko-KR',
-      en: 'en-US', 
+      en: 'en-US',
       ja: 'ja-JP',
       zh: 'zh-CN',
       es: 'es-ES'
@@ -1543,27 +1543,27 @@ class AIGalleryAgent {
 
   speak(text) {
     if (!this.speechEnabled || !text || !this.speechSynthesis) return;
-    
+
     // Cancel any ongoing speech
     this.speechSynthesis.cancel();
-    
+
     const utterance = new SpeechSynthesisUtterance(text);
     if (this.currentVoice) {
       utterance.voice = this.currentVoice;
     }
     utterance.rate = 0.9;
     utterance.pitch = 1.1;
-    
+
     utterance.onstart = () => {
       const avatar = document.getElementById('chatAvatar');
       if (avatar) avatar.classList.add('ai-speaking');
     };
-    
+
     utterance.onend = () => {
       const avatar = document.getElementById('chatAvatar');
       if (avatar) avatar.classList.remove('ai-speaking');
     };
-    
+
     this.speechSynthesis.speak(utterance);
   }
 
@@ -1571,12 +1571,12 @@ class AIGalleryAgent {
   toggleLanguageDropdown() {
     const dropdown = document.getElementById('languageDropdown');
     const btn = document.getElementById('languageBtn');
-    
+
     if (!dropdown || !btn) return;
-    
+
     dropdown.classList.toggle('active');
     btn.setAttribute('aria-expanded', dropdown.classList.contains('active'));
-    
+
     if (dropdown.classList.contains('active')) {
       // Add click handlers for language options (only once)
       const options = dropdown.querySelectorAll('.language-option');
@@ -1592,7 +1592,7 @@ class AIGalleryAgent {
           option.setAttribute('data-handler-added', 'true');
         }
       });
-      
+
       // Close on outside click
       setTimeout(() => {
         document.addEventListener('click', (e) => {
@@ -1610,18 +1610,18 @@ class AIGalleryAgent {
     this.personalizations.language = lang;
     this.personalizations.voiceCode = voiceCode;
     this.savePersonalizations();
-    
+
     // Update UI language
     this.updateLanguage();
-    
+
     // Update speech recognition language
     if (this.speechRecognition) {
       this.speechRecognition.lang = voiceCode;
     }
-    
+
     // Update voice
     this.updateVoice();
-    
+
     // Update active language in dropdown
     document.querySelectorAll('.language-option').forEach(option => {
       option.classList.remove('selected');
@@ -1629,14 +1629,14 @@ class AIGalleryAgent {
         option.classList.add('selected');
       }
     });
-    
+
     // Update language button display
     const currentLangElement = document.getElementById('currentLanguage');
     const selectedOption = document.querySelector(`[data-lang="${lang}"]`);
     if (currentLangElement && selectedOption) {
       const langText = selectedOption.textContent.split(' ')[1] || lang.toUpperCase();
       currentLangElement.textContent = langText;
-      
+
       // Update flag
       const flag = selectedOption.querySelector('.flag');
       const langBtn = document.getElementById('languageBtn');
@@ -1645,19 +1645,19 @@ class AIGalleryAgent {
         if (btnFlag) btnFlag.textContent = flag.textContent;
       }
     }
-    
+
     this.trackEvent('language_change', { language: lang });
   }
 
   updateLanguage() {
     const t = this.translations[this.currentLanguage];
     if (!t) return;
-    
+
     // Update chat header
     const aiName = document.getElementById('aiName');
     const chatStatusText = document.getElementById('chatStatusText');
     const searchInput = document.getElementById('searchInput');
-    
+
     if (aiName) aiName.textContent = t.aiName;
     if (chatStatusText) chatStatusText.textContent = t.aiStatus;
     if (searchInput) searchInput.placeholder = t.searchPlaceholder;
@@ -1672,7 +1672,7 @@ class AIGalleryAgent {
   sendMessage() {
     const input = document.getElementById('chatInput');
     const text = input ? input.value.trim() : '';
-    
+
     if (!text) return;
 
     // Clear input and reset height
@@ -1680,7 +1680,7 @@ class AIGalleryAgent {
       input.value = '';
       input.style.height = 'auto';
     }
-    
+
     this.addMessage('user', text);
     this.showTyping();
 
@@ -1688,13 +1688,13 @@ class AIGalleryAgent {
       const response = this.processMessage(text);
       this.hideTyping();
       this.addMessage('ai', response);
-      
+
       // Execute any commands from the response
       this.executeCommands(text);
-      
+
       // Save chat history
       this.saveChatHistory();
-      
+
     } catch (error) {
       this.hideTyping();
       this.addMessage('ai', 'I encountered an error processing your request. Please try again.');
@@ -1720,13 +1720,13 @@ class AIGalleryAgent {
     if (lowerMessage.includes('show me') || lowerMessage.includes('filter')) {
       const categories = {
         'web': 'web-apps',
-        'mobile': 'mobile-apps', 
+        'mobile': 'mobile-apps',
         'desktop': 'desktop-apps',
         'game': 'games',
         'ai': 'ai-ml',
         'productivity': 'productivity'
       };
-      
+
       for (const [key, value] of Object.entries(categories)) {
         if (lowerMessage.includes(key)) {
           this.handleCategoryFilter(value);
@@ -1801,7 +1801,7 @@ class AIGalleryAgent {
       return `I can help you with:
 
 🔍 **Search**: "search for AI tools"
-🎨 **Themes**: "change to dark theme"  
+🎨 **Themes**: "change to dark theme"
 📱 **Categories**: "show me mobile apps"
 ⭐ **Favorites**: "show my favorites"
 📊 **Views**: "switch to list view"
@@ -1825,35 +1825,35 @@ Just ask naturally - I understand context!`;
       "Want to customize your experience? Ask me to change themes, switch views, or show trending apps!",
       "Try: 'show me AI tools', 'change to cyberpunk theme', or 'what's trending?' - I'm ready to help!"
     ];
-    
+
     return responses[Math.floor(Math.random() * responses.length)];
   }
 
   getRecommendations() {
     const recommendations = [];
     const allApps = this.getAllApps();
-    
+
     // Based on favorites
     if (this.favorites.some(f => f.includes('ai'))) {
       recommendations.push('AutoML Platform', 'Computer Vision Toolkit');
     }
-    
+
     // Based on search history
     if (this.searchHistory.some(s => s.toLowerCase().includes('game'))) {
       recommendations.push('AI Chess Master', 'Neural Strategy');
     }
-    
+
     // Based on theme preference
     if (this.personalizations.theme?.includes('cyberpunk')) {
       recommendations.push('AR Navigation', 'Neural Strategy');
     }
-    
+
     // Featured apps as fallback
     if (recommendations.length === 0) {
       const featured = allApps.filter(app => app.featured).slice(0, 3);
       recommendations.push(...featured.map(app => app.name));
     }
-    
+
     return recommendations.slice(0, 3);
   }
 
@@ -1862,7 +1862,7 @@ Just ask naturally - I understand context!`;
     const favoriteCount = this.favorites.length;
     const searchCount = this.searchHistory.length;
     const sessionTime = this.getSessionTime();
-    
+
     return `📊 Your Gallery Stats:
 
 📱 **Total Apps**: ${totalApps}
@@ -1898,36 +1898,36 @@ You're an active explorer! Keep discovering new apps.`;
   addMessage(sender, text) {
     const messagesContainer = document.getElementById('chatMessages');
     if (!messagesContainer) return;
-    
+
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${sender}`;
-    
+
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';
     contentDiv.innerHTML = this.formatMessageContent(text);
-    
+
     const timeDiv = document.createElement('div');
     timeDiv.className = 'message-time';
     timeDiv.textContent = new Date().toLocaleTimeString();
-    
+
     messageDiv.appendChild(contentDiv);
     messageDiv.appendChild(timeDiv);
     messagesContainer.appendChild(messageDiv);
-    
+
     // Smooth scroll to bottom
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    
+
     // Add to chat history
     this.chatHistory.push({
       role: sender === 'user' ? 'user' : 'assistant',
       content: text
     });
-    
+
     // Keep only last 100 messages
     if (this.chatHistory.length > 100) {
       this.chatHistory = this.chatHistory.slice(-100);
     }
-    
+
     // Speak AI messages if speech is enabled
     if (sender === 'ai' && this.speechEnabled) {
       // Delay to allow message to be displayed
@@ -1947,17 +1947,17 @@ You're an active explorer! Keep discovering new apps.`;
   showTyping() {
     const typingIndicator = document.getElementById('typingIndicator');
     const statusText = document.getElementById('chatStatusText');
-    
+
     if (typingIndicator) {
       typingIndicator.classList.add('visible');
     }
-    
+
     if (statusText) {
       statusText.textContent = 'AI is thinking...';
     }
-    
+
     this.isTyping = true;
-    
+
     // Auto-scroll
     const messagesContainer = document.getElementById('chatMessages');
     if (messagesContainer) {
@@ -1968,36 +1968,36 @@ You're an active explorer! Keep discovering new apps.`;
   hideTyping() {
     const typingIndicator = document.getElementById('typingIndicator');
     const statusText = document.getElementById('chatStatusText');
-    
+
     if (typingIndicator) {
       typingIndicator.classList.remove('visible');
     }
-    
+
     if (statusText) {
       statusText.textContent = this.translations[this.currentLanguage].aiStatus;
     }
-    
+
     this.isTyping = false;
   }
 
   loadChatHistory() {
     const messagesContainer = document.getElementById('chatMessages');
     if (!messagesContainer || this.chatHistory.length === 0) return;
-    
+
     // Add welcome message
     const welcomeMessage = `
       👋 Hello! I'm your GTP gallery assistant. I can help you:
-      
+
       🔍 Search and discover apps
-      🎨 Customize themes and layouts  
+      🎨 Customize themes and layouts
       ⭐ Manage your favorites
       📊 Get personalized recommendations
-      
+
       What would you like to explore today?
     `;
-    
+
     this.addMessage('ai', welcomeMessage);
-    
+
     // Load previous messages (last 10)
     const recentMessages = this.chatHistory.slice(-10);
     recentMessages.forEach(msg => {
@@ -2005,7 +2005,7 @@ You're an active explorer! Keep discovering new apps.`;
         this.addMessage(msg.role === 'user' ? 'user' : 'ai', msg.content);
       }
     });
-    
+
     // Update notification if there are previous messages
     if (this.chatHistory.length > 0) {
       const notification = document.getElementById('chatNotification');
@@ -2024,9 +2024,9 @@ You're an active explorer! Keep discovering new apps.`;
   showFavorites() {
     const modal = document.getElementById('favoritesModal');
     const content = document.getElementById('favoritesContent');
-    
+
     if (!modal || !content) return;
-    
+
     if (this.favorites.length === 0) {
       content.innerHTML = `
         <div style="text-align: center; padding: 2rem;">
@@ -2047,7 +2047,7 @@ You're an active explorer! Keep discovering new apps.`;
         const name = nameParts.join('-');
         return allApps.find(app => app.name.toLowerCase().replace(/[^a-z0-9]/g, '-') === name);
       }).filter(Boolean);
-      
+
       content.innerHTML = `
         <div class="favorites-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
           ${favoriteApps.map(app => `
@@ -2058,7 +2058,7 @@ You're an active explorer! Keep discovering new apps.`;
                   <h4 style="margin: 0 0 0.25rem 0;">${app.name}</h4>
                   <div class="stars" style="font-size: 0.8rem;">${this.generateStars(app.rating)}</div>
                 </div>
-                <button onclick="aiAgent.toggleFavorite('${this.getAppCategory(app)}', '${app.name}')" 
+                <button onclick="aiAgent.toggleFavorite('${this.getAppCategory(app)}', '${app.name}')"
                         style="background: none; border: none; color: #ff6b6b; cursor: pointer; font-size: 1.2rem;">
                   <i class="fas fa-heart"></i>
                 </button>
@@ -2079,7 +2079,7 @@ You're an active explorer! Keep discovering new apps.`;
         </div>
       `;
     }
-    
+
     modal.classList.add('active');
     this.trackEvent('favorites_view');
   }
@@ -2087,11 +2087,11 @@ You're an active explorer! Keep discovering new apps.`;
   showAnalytics() {
     const modal = document.getElementById('analyticsModal');
     const content = document.getElementById('analyticsContent');
-    
+
     if (!modal || !content) return;
-    
+
     const stats = this.generateAnalytics();
-    
+
     content.innerHTML = `
       <div class="analytics-dashboard">
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
@@ -2102,7 +2102,7 @@ You're an active explorer! Keep discovering new apps.`;
             </div>
           `).join('')}
         </div>
-        
+
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
           <div>
             <h4 style="margin-bottom: 1rem; color: var(--text);">Top Categories</h4>
@@ -2113,7 +2113,7 @@ You're an active explorer! Keep discovering new apps.`;
               </div>
             `).join('')}
           </div>
-          
+
           <div>
             <h4 style="margin-bottom: 1rem; color: var(--text);">Recent Activity</h4>
             ${stats.activity.map(item => `
@@ -2127,7 +2127,7 @@ You're an active explorer! Keep discovering new apps.`;
         </div>
       </div>
     `;
-    
+
     modal.classList.add('active');
     this.trackEvent('analytics_view');
   }
@@ -2135,14 +2135,14 @@ You're an active explorer! Keep discovering new apps.`;
   showSettings() {
     const modal = document.getElementById('settingsModal');
     const content = document.getElementById('settingsContent');
-    
+
     if (!modal || !content) return;
-    
+
     content.innerHTML = `
       <div class="settings-panel">
         <div class="setting-group" style="margin-bottom: 2rem;">
           <h4 style="margin-bottom: 1rem; color: var(--text);">Appearance</h4>
-          
+
           <div class="setting-item" style="margin-bottom: 1rem;">
             <label style="display: block; margin-bottom: 0.5rem;">Theme</label>
             <select onchange="aiAgent.changeTheme(this.value)" style="width: 100%; padding: 0.5rem; border-radius: 8px; background: var(--glass-bg); color: var(--text); border: 1px solid var(--glass-border);">
@@ -2153,7 +2153,7 @@ You're an active explorer! Keep discovering new apps.`;
               <option value="theme-ocean" ${this.currentTheme === 'theme-ocean' ? 'selected' : ''}>Ocean</option>
             </select>
           </div>
-          
+
           <div class="setting-item" style="margin-bottom: 1rem;">
             <label style="display: block; margin-bottom: 0.5rem;">View Mode</label>
             <select onchange="aiAgent.changeView(this.value)" style="width: 100%; padding: 0.5rem; border-radius: 8px; background: var(--glass-bg); color: var(--text); border: 1px solid var(--glass-border);">
@@ -2163,18 +2163,18 @@ You're an active explorer! Keep discovering new apps.`;
             </select>
           </div>
         </div>
-        
+
         <div class="setting-group" style="margin-bottom: 2rem;">
           <h4 style="margin-bottom: 1rem; color: var(--text);">Audio</h4>
-          
+
           <div class="setting-item" style="margin-bottom: 1rem;">
             <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-              <input type="checkbox" ${this.speechEnabled ? 'checked' : ''} onchange="aiAgent.toggleSpeaker()" 
+              <input type="checkbox" ${this.speechEnabled ? 'checked' : ''} onchange="aiAgent.toggleSpeaker()"
                      style="margin: 0;">
               <span>Enable Voice Output</span>
             </label>
           </div>
-          
+
           <div class="setting-item">
             <label style="display: block; margin-bottom: 0.5rem;">Language</label>
             <select onchange="aiAgent.changeLanguage(this.value, this.selectedOptions[0].dataset.voice)" style="width: 100%; padding: 0.5rem; border-radius: 8px; background: var(--glass-bg); color: var(--text); border: 1px solid var(--glass-border);">
@@ -2186,10 +2186,10 @@ You're an active explorer! Keep discovering new apps.`;
             </select>
           </div>
         </div>
-        
+
         <div class="setting-group">
           <h4 style="margin-bottom: 1rem; color: var(--text);">Data</h4>
-          
+
           <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
             <button onclick="aiAgent.clearAllData()" class="clear-filters-btn">
               <i class="fas fa-trash"></i> Clear All Data
@@ -2201,7 +2201,7 @@ You're an active explorer! Keep discovering new apps.`;
         </div>
       </div>
     `;
-    
+
     modal.classList.add('active');
     this.trackEvent('settings_view');
   }
@@ -2217,7 +2217,7 @@ You're an active explorer! Keep discovering new apps.`;
   generateAnalytics() {
     const allApps = this.getAllApps();
     const categories = this.getGalleryData();
-    
+
     return {
       cards: [
         { label: 'Total Apps', value: allApps.length },
@@ -2264,7 +2264,7 @@ You're an active explorer! Keep discovering new apps.`;
       chatHistory: this.chatHistory,
       usageStats: this.usageStats
     };
-    
+
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -2274,7 +2274,7 @@ You're an active explorer! Keep discovering new apps.`;
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    
+
     this.showToast('Export Complete', 'Your data has been exported successfully.', 'success');
     this.trackEvent('data_export');
   }
@@ -2288,14 +2288,14 @@ You're an active explorer! Keep discovering new apps.`;
       categoriesCount: Object.keys(this.getGalleryData()).length,
       userSessions: (this.usageStats.sessions || 0) + 1
     };
-    
+
     Object.entries(elements).forEach(([id, value]) => {
       const element = document.getElementById(id);
       if (element) {
         element.textContent = value;
       }
     });
-    
+
     // Update session stats
     if (!this.usageStats.sessionStart) {
       this.usageStats.sessionStart = Date.now();
@@ -2318,18 +2318,18 @@ You're an active explorer! Keep discovering new apps.`;
         userAgent: navigator.userAgent
       }
     };
-    
+
     // Store in usage stats
     this.usageStats.events = this.usageStats.events || [];
     this.usageStats.events.push(event);
-    
+
     // Keep only last 1000 events
     if (this.usageStats.events.length > 1000) {
       this.usageStats.events = this.usageStats.events.slice(-1000);
     }
-    
+
     localStorage.setItem('usage_stats', JSON.stringify(this.usageStats));
-    
+
     // Log for debugging
     console.log('Event tracked:', event);
   }
@@ -2355,7 +2355,7 @@ You're an active explorer! Keep discovering new apps.`;
         }
       }
     }, 30000);
-    
+
     // Monitor page visibility
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
@@ -2372,7 +2372,7 @@ You're an active explorer! Keep discovering new apps.`;
       this.chatHistory = this.chatHistory.slice(-50);
       this.saveChatHistory();
     }
-    
+
     // Limit usage stats events
     if (this.usageStats.events && this.usageStats.events.length > 500) {
       this.usageStats.events = this.usageStats.events.slice(-500);
@@ -2392,17 +2392,17 @@ You're an active explorer! Keep discovering new apps.`;
   showToast(title, message, type = 'info') {
     const toastContainer = document.getElementById('toastContainer');
     if (!toastContainer) return;
-    
+
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    
+
     const iconMap = {
       success: 'fas fa-check-circle',
       error: 'fas fa-exclamation-circle',
       warning: 'fas fa-exclamation-triangle',
       info: 'fas fa-info-circle'
     };
-    
+
     toast.innerHTML = `
       <i class="toast-icon ${iconMap[type]}"></i>
       <div class="toast-content">
@@ -2413,9 +2413,9 @@ You're an active explorer! Keep discovering new apps.`;
         <i class="fas fa-times"></i>
       </button>
     `;
-    
+
     toastContainer.appendChild(toast);
-    
+
     // Auto-remove after 5 seconds
     setTimeout(() => {
       if (toast.parentNode) {
@@ -2477,7 +2477,7 @@ You're an active explorer! Keep discovering new apps.`;
       input.value = 'featured';
       this.handleSearch('featured');
     }
-    
+
     this.addMessage('ai', 'Showing all trending and featured apps! These are the most popular right now.');
     this.trackEvent('trending_view');
   }
@@ -2486,11 +2486,11 @@ You're an active explorer! Keep discovering new apps.`;
   toggleChat() {
     const chatWindow = document.getElementById('chatWindow');
     const notification = document.getElementById('chatNotification');
-    
+
     if (!chatWindow) return;
-    
+
     const isActive = chatWindow.classList.contains('active');
-    
+
     if (isActive) {
       chatWindow.classList.remove('active');
       this.trackEvent('chat_close');
@@ -2502,7 +2502,7 @@ You're an active explorer! Keep discovering new apps.`;
         if (chatInput) chatInput.focus();
       }, 100);
       this.trackEvent('chat_open');
-      
+
       // Hide notification
       if (notification) {
         notification.classList.remove('visible');
@@ -2521,7 +2521,7 @@ function initializeApp() {
     aiAgent = new AIGalleryAgent();
   } catch (error) {
     console.error('Failed to initialize AI Gallery Agent:', error);
-    
+
     // Show error message
     const aiStatus = document.getElementById('aiStatus');
     if (aiStatus) {
@@ -2558,19 +2558,19 @@ function sendQuickMessage(message) {
 
 function clearChat() {
   if (!aiAgent) return;
-  
+
   const messagesContainer = document.getElementById('chatMessages');
   if (messagesContainer) {
     // Keep only welcome message
     const welcomeMessage = messagesContainer.querySelector('.message.ai');
     messagesContainer.innerHTML = '';
-    
+
     // Re-add welcome message
     if (aiAgent) {
       aiAgent.loadChatHistory();
     }
   }
-  
+
   if (aiAgent) {
     aiAgent.chatHistory = [];
     aiAgent.saveChatHistory();
@@ -2581,14 +2581,14 @@ function clearChat() {
 
 function exportChat() {
   if (!aiAgent) return;
-  
+
   const chatData = {
     timestamp: new Date().toISOString(),
     messages: aiAgent.chatHistory,
     personalizations: aiAgent.personalizations,
     favorites: aiAgent.favorites
   };
-  
+
   const blob = new Blob([JSON.stringify(chatData, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -2598,7 +2598,7 @@ function exportChat() {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  
+
   if (aiAgent) {
     aiAgent.showToast('Chat Exported', 'Your chat history has been downloaded.', 'success');
     aiAgent.trackEvent('chat_export');
@@ -2627,9 +2627,9 @@ window.addEventListener('resize', () => {
   clearTimeout(resizeTimeout);
   resizeTimeout = setTimeout(() => {
     if (aiAgent) {
-      aiAgent.trackEvent('resize', { 
-        width: window.innerWidth, 
-        height: window.innerHeight 
+      aiAgent.trackEvent('resize', {
+        width: window.innerWidth,
+        height: window.innerHeight
       });
     }
   }, 250);
