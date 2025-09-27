@@ -1,11 +1,19 @@
 // ===== ENHANCED AI GALLERY WITH SUPABASE INTEGRATION =====
 
 // Check if Supabase is available
-const SUPABASE_ENABLED = typeof supabase !== 'undefined' && typeof authService !== 'undefined';
+const SUPABASE_ENABLED = typeof window.supabase !== 'undefined' && typeof authService !== 'undefined';
 
 class EnhancedAIGalleryAgent {
   constructor() {
-    // Initialize core data with error handling
+    // Initialize core data with error handling - use in-memory defaults
+    this.chatHistory = [];
+    this.personalizations = {};
+    this.favorites = [];
+    this.searchHistory = [];
+    this.usageStats = {};
+    this.userProfile = {};
+
+    // Try to load from localStorage, but don't fail if it doesn't work
     try {
       this.chatHistory = JSON.parse(localStorage.getItem('chat_history') || '[]');
       this.personalizations = JSON.parse(localStorage.getItem('gallery_personalizations') || '{}');
@@ -15,12 +23,6 @@ class EnhancedAIGalleryAgent {
       this.userProfile = JSON.parse(localStorage.getItem('user_profile') || '{}');
     } catch (e) {
       console.warn('Failed to parse localStorage data:', e);
-      this.chatHistory = [];
-      this.personalizations = {};
-      this.favorites = [];
-      this.searchHistory = [];
-      this.usageStats = {};
-      this.userProfile = {};
     }
 
     // Core state
@@ -56,7 +58,7 @@ class EnhancedAIGalleryAgent {
       renderTime: 0
     };
 
-    // Language support
+    // Language support (keep existing translations object)
     this.translations = {
       en: {
         aiName: "Jimin - AI Assistant",
@@ -1472,30 +1474,38 @@ class EnhancedAIGalleryAgent {
   }
 
   changeTheme(theme) {
-    document.body.classList.remove('theme-dark', 'theme-light', 'theme-cyberpunk', 'theme-ocean');
+  const body = document.body;
+  if (!body) return;
 
-    document.querySelectorAll('.theme-btn').forEach(btn => {
-      btn.classList.remove('active');
-    });
+  body.classList.remove('theme-dark', 'theme-light', 'theme-cyberpunk', 'theme-ocean');
+  
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
 
-    if (theme !== 'default') {
-      document.body.classList.add(theme);
-    }
+  if (theme !== 'default') {
+    body.classList.add(theme);
+  }
 
-    document.querySelector(`[data-theme="${theme}"]`).classList.add('active');
+  const themeBtn = document.querySelector(`[data-theme="${theme}"]`);
+  if (themeBtn) {
+    themeBtn.classList.add('active');
+  }
 
-    this.currentTheme = theme;
-    this.personalizations.theme = theme;
-    this.savePersonalizations();
+  this.currentTheme = theme;
+  this.personalizations.theme = theme;
+  this.savePersonalizations();
 
-    const aiStatus = document.getElementById('aiStatus');
+  const aiStatus = document.getElementById('aiStatus');
+  if (aiStatus) {
     aiStatus.classList.add('active');
     setTimeout(() => aiStatus.classList.remove('active'), 2000);
-
-    const themeName = theme.replace('theme-', '').replace('-', ' ');
-    this.addMessage('ai', this.translate('themeChanged', `Theme changed to ${themeName}!`));
-    this.trackEvent('theme_change', { theme });
   }
+
+  const themeName = theme.replace('theme-', '').replace('-', ' ');
+  this.addMessage('ai', this.translate('themeChanged', `Theme changed to ${themeName}!`));
+  this.trackEvent('theme_change', { theme });
+}
 
   showPlatformSelector(category, appName, button) {
     this.closePlatformSelector();

@@ -604,70 +604,83 @@ function handleLogout() {
   <script src="script.js"></script>
   // Authentication UI Initialization - Add this before closing </body> in index.html
 <script>
-(async function initAuth() {
-  // Wait for authService to be available
-  if (typeof authService === 'undefined') {
-    console.log('Waiting for authService...');
-    setTimeout(initAuth, 100);
-    return;
-  }
-
-  try {
-    // Initialize auth service
-    await authService.init();
-    
-    const authButton = document.getElementById('authButton');
-    const authContainer = document.getElementById('authContainer');
-    const userMenuContainer = document.getElementById('userMenuContainer');
-    
-    if (authService.isAuthenticated()) {
-      const profile = authService.getCurrentProfile();
+    // Wait for everything to load
+    window.addEventListener('DOMContentLoaded', async function() {
+      console.log('DOM loaded, initializing auth...');
       
-      // Hide login button
-      if (authContainer) authContainer.style.display = 'none';
+      // Wait a bit for all scripts to be ready
+      await new Promise(resolve => setTimeout(resolve, 100));
       
-      // Show user menu
-      if (userMenuContainer) {
-        userMenuContainer.style.display = 'block';
-        
-        // Update user menu button with username initial or avatar
-        const userMenuBtn = document.getElementById('userMenuBtn');
-        if (userMenuBtn && profile) {
-          if (profile.avatar_url) {
-            userMenuBtn.innerHTML = `<img src="${profile.avatar_url}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
-          } else {
-            const initial = (profile.username || profile.email || 'U')[0].toUpperCase();
-            userMenuBtn.innerHTML = initial;
-          }
+      try {
+        // Check if authService exists
+        if (typeof authService === 'undefined') {
+          console.error('authService not found!');
+          return;
         }
-      }
-      
-      console.log('User authenticated:', profile?.username);
-    } else {
-      // Show login button
-      if (authContainer) authContainer.style.display = 'block';
-      
-      // Hide user menu
-      if (userMenuContainer) userMenuContainer.style.display = 'none';
-      
-      console.log('User not authenticated');
-    }
-    
-    // Listen for auth state changes
-    authService.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event);
-      
-      if (event === 'SIGNED_IN') {
-        window.location.reload();
-      } else if (event === 'SIGNED_OUT') {
-        window.location.href = '/login.html';
+        
+        // Initialize auth
+        await authService.init();
+        
+        const authContainer = document.getElementById('authContainer');
+        const userMenuContainer = document.getElementById('userMenuContainer');
+        
+        if (!authContainer || !userMenuContainer) {
+          console.error('Auth containers not found');
+          return;
+        }
+        
+        if (authService.isAuthenticated()) {
+          const profile = authService.getCurrentProfile();
+          console.log('User logged in:', profile?.username);
+          
+          // Hide login, show user menu
+          authContainer.style.display = 'none';
+          userMenuContainer.style.display = 'block';
+          
+          // Update user button
+          const userMenuBtn = document.getElementById('userMenuBtn');
+          if (userMenuBtn && profile) {
+            if (profile.avatar_url) {
+              userMenuBtn.innerHTML = `<img src="${profile.avatar_url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+            } else {
+              const initial = (profile.username || 'U')[0].toUpperCase();
+              userMenuBtn.innerHTML = initial;
+            }
+          }
+        } else {
+          console.log('User not logged in');
+          authContainer.style.display = 'block';
+          userMenuContainer.style.display = 'none';
+        }
+        
+        // Listen for auth changes
+        authService.onAuthStateChange((event, session) => {
+          console.log('Auth changed:', event);
+          if (event === 'SIGNED_IN') {
+            window.location.reload();
+          } else if (event === 'SIGNED_OUT') {
+            window.location.href = '/login.html';
+          }
+        });
+        
+      } catch (error) {
+        console.error('Auth init error:', error);
       }
     });
     
-  } catch (error) {
-    console.error('Auth initialization error:', error);
-  }
-})();
-</script>
+    // Global logout function
+    async function handleLogout() {
+      try {
+        if (typeof authService !== 'undefined') {
+          await authService.logout();
+        } else {
+          window.location.href = '/login.html';
+        }
+      } catch (error) {
+        console.error('Logout error:', error);
+        window.location.href = '/login.html';
+      }
+    }
+  </script>
 </body>
 </html>
