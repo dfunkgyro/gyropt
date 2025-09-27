@@ -71,6 +71,115 @@
           <div class="search-suggestions" id="searchSuggestions"></div>
         </div>
 
+
+        <!-- Updated Header Controls Section -->
+<div class="header-controls">
+  <!-- Search Container -->
+  <div class="search-container">
+    <i class="fas fa-search search-icon"></i>
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Search apps, categories, or features..."
+      id="searchInput"
+      aria-label="Search gallery items"
+      autocomplete="off"
+    >
+    <button class="search-clear" id="searchClear" aria-label="Clear search">
+      <i class="fas fa-times"></i>
+    </button>
+    <div class="search-suggestions" id="searchSuggestions"></div>
+  </div>
+
+  <!-- Category Filter -->
+  <select class="category-filter" id="categoryFilter" aria-label="Filter by category">
+    <option value="">All Categories</option>
+    <option value="web-apps">Web Apps</option>
+    <option value="mobile-apps">Mobile Apps</option>
+    <option value="desktop-apps">Desktop Apps</option>
+    <option value="games">Games</option>
+    <option value="ai-ml">AI & ML</option>
+    <option value="productivity">Productivity</option>
+  </select>
+
+  <!-- Sort Options -->
+  <select class="sort-filter" id="sortFilter" aria-label="Sort applications">
+    <option value="name">Name A-Z</option>
+    <option value="stars">Most Popular</option>
+    <option value="recent">Recently Added</option>
+    <option value="rating">Highest Rated</option>
+  </select>
+
+  <!-- View Toggle -->
+  <div class="view-toggle">
+    <button class="view-btn active" data-view="grid" aria-label="Grid view" title="Grid View">
+      <i class="fas fa-th"></i>
+    </button>
+    <button class="view-btn" data-view="list" aria-label="List view" title="List View">
+      <i class="fas fa-list"></i>
+    </button>
+    <button class="view-btn" data-view="compact" aria-label="Compact view" title="Compact View">
+      <i class="fas fa-th-large"></i>
+    </button>
+  </div>
+
+  <!-- Theme Selector -->
+  <div class="theme-selector">
+    <div class="theme-btn neon active" data-theme="default" title="Neon Theme" tabindex="0" role="button" aria-label="Neon theme"></div>
+    <div class="theme-btn dark" data-theme="theme-dark" title="Dark Theme" tabindex="0" role="button" aria-label="Dark theme"></div>
+    <div class="theme-btn light" data-theme="theme-light" title="Light Theme" tabindex="0" role="button" aria-label="Light theme"></div>
+    <div class="theme-btn cyberpunk" data-theme="theme-cyberpunk" title="Cyber Theme" tabindex="0" role="button" aria-label="Cyber theme"></div>
+    <div class="theme-btn ocean" data-theme="theme-ocean" title="Ocean Theme" tabindex="0" role="button" aria-label="Ocean theme"></div>
+  </div>
+
+  <!-- Auth Buttons (will be updated by JavaScript, but have defaults) -->
+  <div id="authContainer">
+    <button class="auth-btn" id="authButton" onclick="window.location.href='/login.html'">
+      <i class="fas fa-sign-in-alt"></i>
+      <span>Login</span>
+    </button>
+  </div>
+
+  <!-- User Menu (hidden by default, shown when logged in) -->
+  <div class="user-menu" id="userMenuContainer" style="display: none;">
+    <button class="user-menu-btn" id="userMenuBtn" aria-label="User menu">
+      <i class="fas fa-user"></i>
+    </button>
+    <div class="user-dropdown" id="userDropdown">
+      <a href="/profile.html" class="dropdown-item">
+        <i class="fas fa-user-circle"></i> My Profile
+      </a>
+      <a href="/gtpnotes.html" class="dropdown-item">
+        <i class="fas fa-sticky-note"></i> My Notes
+      </a>
+      <a href="#" class="dropdown-item" onclick="aiAgent.showFavorites()">
+        <i class="fas fa-heart"></i> My Favorites
+      </a>
+      <a href="#" class="dropdown-item" onclick="aiAgent.showAnalytics()">
+        <i class="fas fa-chart-line"></i> Analytics
+      </a>
+      <a href="#" class="dropdown-item" onclick="aiAgent.showSettings()">
+        <i class="fas fa-cog"></i> Settings
+      </a>
+      <div class="dropdown-divider"></div>
+      <a href="#" class="dropdown-item" onclick="handleLogout()" style="color: var(--error);">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+// Global logout handler
+function handleLogout() {
+  if (typeof authService !== 'undefined') {
+    authService.logout();
+  } else {
+    window.location.href = '/login.html';
+  }
+}
+</script>
+
         <!-- Category Filter -->
         <select class="category-filter" id="categoryFilter" aria-label="Filter by category">
           <option value="">All Categories</option>
@@ -493,5 +602,72 @@
   <!-- Scripts -->
   <script src="supabase-client.js"></script>
   <script src="script.js"></script>
+  // Authentication UI Initialization - Add this before closing </body> in index.html
+<script>
+(async function initAuth() {
+  // Wait for authService to be available
+  if (typeof authService === 'undefined') {
+    console.log('Waiting for authService...');
+    setTimeout(initAuth, 100);
+    return;
+  }
+
+  try {
+    // Initialize auth service
+    await authService.init();
+    
+    const authButton = document.getElementById('authButton');
+    const authContainer = document.getElementById('authContainer');
+    const userMenuContainer = document.getElementById('userMenuContainer');
+    
+    if (authService.isAuthenticated()) {
+      const profile = authService.getCurrentProfile();
+      
+      // Hide login button
+      if (authContainer) authContainer.style.display = 'none';
+      
+      // Show user menu
+      if (userMenuContainer) {
+        userMenuContainer.style.display = 'block';
+        
+        // Update user menu button with username initial or avatar
+        const userMenuBtn = document.getElementById('userMenuBtn');
+        if (userMenuBtn && profile) {
+          if (profile.avatar_url) {
+            userMenuBtn.innerHTML = `<img src="${profile.avatar_url}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+          } else {
+            const initial = (profile.username || profile.email || 'U')[0].toUpperCase();
+            userMenuBtn.innerHTML = initial;
+          }
+        }
+      }
+      
+      console.log('User authenticated:', profile?.username);
+    } else {
+      // Show login button
+      if (authContainer) authContainer.style.display = 'block';
+      
+      // Hide user menu
+      if (userMenuContainer) userMenuContainer.style.display = 'none';
+      
+      console.log('User not authenticated');
+    }
+    
+    // Listen for auth state changes
+    authService.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event);
+      
+      if (event === 'SIGNED_IN') {
+        window.location.reload();
+      } else if (event === 'SIGNED_OUT') {
+        window.location.href = '/login.html';
+      }
+    });
+    
+  } catch (error) {
+    console.error('Auth initialization error:', error);
+  }
+})();
+</script>
 </body>
 </html>
