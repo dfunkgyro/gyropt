@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - GyroTechPro</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <!-- Fixed Header -->
+  <header class="fixed-header">
+    <div class="header-content">
+      <h1 class="header-title">
+        <i class="fas fa-shield-alt header-icon"></i>
+        Admin Dashboard
+      </h1>
+      <div class="header-controls">
+        <button class="auth-btn" onclick="window.location.href='/'">
+          <i class="fas fa-home"></i>
+          <span>Back to Gallery</span>
+        </button>
+        <button class="auth-btn" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content" style="max-width: 1400px; margin: 0 auto;">
+    <div class="admin-container">
+      <!-- Stats Overview -->
+      <section class="admin-section">
+        <h2><i class="fas fa-chart-line"></i> Overview</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-info">
+              <div class="stat-value" id="totalUsers">0</div>
+              <div class="stat-label">Total Users</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-sticky-note"></i></div>
+            <div class="stat-info">
+              <div class="stat-value" id="totalNotes">0</div>
+              <div class="stat-label">Total Notes</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-search"></i></div>
+            <div class="stat-info">
+              <div class="stat-value" id="totalSearches">0</div>
+              <div class="stat-label">Total Searches</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-chart-bar"></i></div>
+            <div class="stat-info">
+              <div class="stat-value" id="totalEvents">0</div>
+              <div class="stat-label">Total Events</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- All Users -->
+      <section class="admin-section">
+        <h2><i class="fas fa-users-cog"></i> User Management</h2>
+        <div class="table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Notes</th>
+                <th>Joined</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersTable">
+              <tr>
+                <td colspan="6" class="loading">Loading users...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- All Notes -->
+      <section class="admin-section">
+        <h2><i class="fas fa-file-alt"></i> All Notes</h2>
+        <div class="notes-filters">
+          <input type="text" id="notesSearch" placeholder="Search notes..." class="admin-search">
+          <select id="userFilter" class="admin-select">
+            <option value="">All Users</option>
+          </select>
+        </div>
+        <div id="adminNotesList" class="admin-notes-list">
+          <p class="loading">Loading notes...</p>
+        </div>
+      </section>
+
+      <!-- Audit Logs -->
+      <section class="admin-section">
+        <h2><i class="fas fa-history"></i> Audit Logs</h2>
+        <div class="audit-filters">
+          <select id="auditActionFilter" class="admin-select">
+            <option value="">All Actions</option>
+            <option value="created">Created</option>
+            <option value="updated">Updated</option>
+            <option value="deleted">Deleted</option>
+          </select>
+          <input type="date" id="auditDateFilter" class="admin-input">
+        </div>
+        <div class="table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>User</th>
+                <th>Action</th>
+                <th>Note Title</th>
+                <th>Changes</th>
+              </tr>
+            </thead>
+            <tbody id="auditTable">
+              <tr>
+                <td colspan="5" class="loading">Loading audit logs...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Recent Activity -->
+      <section class="admin-section">
+        <h2><i class="fas fa-clock"></i> Recent Activity</h2>
+        <div class="table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>User</th>
+                <th>Event</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody id="activityTable">
+              <tr>
+                <td colspan="4" class="loading">Loading activity...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="supabase-client.js"></script>
+  <script>
+    let currentAdmin = null;
+
+    async function init() {
+      await authService.init();
+      
+      // Check if user is admin
+      if (!authService.requireAuth()) return;
+      if (!authService.requireAdmin()) return;
+
+      currentAdmin = authService.getCurrentUser();
+      
+      await loadDashboardData();
+    }
+
+    async function loadDashboardData() {
+      try {
+        // Load stats
+        await loadStats();
+        
+        // Load users
+        await loadUsers();
+        
+        // Load all notes
+        await loadAllNotes();
+        
+        // Load audit logs
+        await loadAuditLogs();
+        
+        // Load recent activity
+        await loadRecentActivity();
+        
+      } catch (error) {
+        console.error('Error loading dashboard:', error);
+        alert('Error loading dashboard data');
+      }
+    }
+
+    async function loadStats() {
+      try {
+        // Get total users
+        const { data: users, error: usersError } = await supabase
+          .from('profiles')
+          .select('id', { count: 'exact' });
+        
+        if (!usersError) {
+          document.getElementById('totalUsers').textContent = users.length;
+        }
+
+        // Get total notes
+        const { data: notes, error: notesError } = await supabase
+          .from('notes')
+          .select('id', { count: 'exact' });
+        
+        if (!notesError) {
+          document.getElementById('totalNotes').textContent = notes.length;
+        }
+
+        // Get total searches
+        const { data: searches, error: searchesError } = await supabase
+          .from('search_history')
+          .select('id', { count: 'exact' });
+        
+        if (!searchesError) {
+          document.getElementById('totalSearches').textContent = searches.length;
+        }
+
+        // Get total events
+        const { data: events, error: eventsError } = await supabase
+          .from('usage_analytics')
+          .select('id', { count: 'exact' });
+        
+        if (!eventsError) {
+          document.getElementById('totalEvents').textContent = events.length;
+        }
+      } catch (error) {
+        console.error('Error loading stats:', error);
+      }
+    }
+
+    async function loadUsers() {
+      try {
+        const { data: profiles, error } = await supabase
+          .from('profiles')
+          .select(`
+            id,
+            username,
+            role,
+            created_at
+          `)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        // Get note counts for each user
+        const usersWithNotes = await Promise.all(profiles.map(async (profile) => {
+          const { data: notes } = await supabase
+            .from('notes')
+            .select('id', { count: 'exact' })
+            .eq('user_id', profile.id);
+          
+          // Get user email from auth
+          const { data: { user } } = await supabase.auth.admin.getUserById(profile.id);
+          
+          return {
+            ...profile,
+            email: user?.email || 'N/A',
+            noteCount: notes?.length || 0
+          };
+        }));
+
+        const tbody = document.getElementById('usersTable');
+        tbody.innerHTML = usersWithNotes.map(user => `
+          <tr>
+            <td>${user.username}</td>
+            <td>${user.email}</td>
+            <td>
+              <select onchange="changeUserRole('${user.id}', this.value)" 
+                      style="padding: 0.25rem; border-radius: 4px; background: var(--glass-bg); color: var(--text); border: 1px solid var(--glass-border);">
+                <option value="user" ${user.role === 'user' ? 'selected' : ''}>User</option>
+                <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
+                <option value="editor" ${user.role === 'editor' ? 'selected' : ''}>Editor</option>
+                <option value="moderator" ${user.role === 'moderator' ? 'selected' : ''}>Moderator</option>
+              </select>
+            </td>
+            <td>${user.noteCount}</td>
+            <td>${new Date(user.created_at).toLocaleDateString()}</td>
+            <td>
+              <button onclick="viewUserNotes('${user.id}')" class="admin-action-btn">
+                <i class="fas fa-eye"></i>
+              </button>
+            </td>
+          </tr>
+        `).join('');
+
+        // Populate user filter
+        const userFilter = document.getElementById('userFilter');
+        userFilter.innerHTML = '<option value="">All Users</option>' + 
+          profiles.map(user => `<option value="${user.id}">${user.username}</option>`).join('');
+
+      } catch (error) {
+        console.error('Error loading users:', error);
+        document.getElementById('usersTable').innerHTML = 
+          '<tr><td colspan="6" class="error">Error loading users</td></tr>';
+      }
+    }
+
+    async function changeUserRole(userId, newRole) {
+      try {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ role: newRole })
+          .eq('id', userId);
+
+        if (error) throw error;
+
+        alert(`User role updated to ${newRole}`);
+      } catch (error) {
+        console.error('Error updating role:', error);
+        alert('Failed to update role');
+      }
+    }
+
+    async function loadAllNotes() {
+      try {
+        const { data, error } = await notesService.getAllNotes();
+
+        if (error || !data.success) throw error;
+
+        const notes = data.data;
+        const container = document.getElementById('adminNotesList');
+        
+        if (notes.length === 0) {
+          container.innerHTML = '<p>No notes found</p>';
+          return;
+        }
+
+        container.innerHTML = notes.map(note => `
+          <div class="admin-note-card">
+            <div class="note-header">
+              <h4>${note.title}</h4>
+              <span class="note-user">by ${note.username}</span>
+            </div>
+            <p>${note.content.substring(0, 200)}${note.content.length > 200 ? '...' : ''}</p>
+            <div class="note-meta">
+              <span><i class="fas fa-align-left"></i> ${note.word_count} words</span>
+              <span><i class="fas fa-clock"></i> ${new Date(note.created_at).toLocaleString()}</span>
+            </div>
+          </div>
+        `).join('');
+
+        // Setup search filter
+        document.getElementById('notesSearch').addEventListener('input', (e) => {
+          filterNotes(notes, e.target.value, document.getElementById('userFilter').value);
+        });
+
+        document.getElementById('userFilter').addEventListener('change', (e) => {
+          filterNotes(notes, document.getElementById('notesSearch').value, e.target.value);
+        });
+
+      } catch (error) {
+        console.error('Error loading notes:', error);
+        document.getElementById('adminNotesList').innerHTML = 
+          '<p class="error">Error loading notes</p>';
+      }
+    }
+
+    function filterNotes(allNotes, searchTerm, userId) {
+      const filtered = allNotes.filter(note => {
+        const matchesSearch = !searchTerm || 
+          note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          note.content.toLowerCase().includes(searchTerm.toLowerCase());
+        
+        const matchesUser = !userId || note.user_id === userId;
+        
+        return matchesSearch && matchesUser;
+      });
+
+      const container = document.getElementById('adminNotesList');
+      container.innerHTML = filtered.map(note => `
+        <div class="admin-note-card">
+          <div class="note-header">
+            <h4>${note.title}</h4>
+            <span class="note-user">by ${note.username}</span>
+          </div>
+          <p>${note.content.substring(0, 200)}${note.content.length > 200 ? '...' : ''}</p>
+          <div class="note-meta">
+            <span><i class="fas fa-align-left"></i> ${note.word_count} words</span>
+            <span><i class="fas fa-clock"></i> ${new Date(note.created_at).toLocaleString()}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function loadAuditLogs() {
+      try {
+        const { data, error } = await notesService.getNoteAudits();
+
+        if (error || !data.success) throw error;
+
+        const audits = data.data;
+        const tbody = document.getElementById('auditTable');
+        
+        if (audits.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5">No audit logs found</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = audits.slice(0, 50).map(audit => `
+          <tr>
+            <td>${new Date(audit.timestamp).toLocaleString()}</td>
+            <td>${audit.user_id ? audit.user_id.substring(0, 8) + '...' : 'N/A'}</td>
+            <td><span class="badge badge-${audit.action}">${audit.action}</span></td>
+            <td>${audit.new_title || audit.old_title || 'N/A'}</td>
+            <td>${getAuditChanges(audit)}</td>
+          </tr>
+        `).join('');
+
+        // Setup filters
+        document.getElementById('auditActionFilter').addEventListener('change', (e) => {
+          filterAudits(audits, e.target.value, document.getElementById('auditDateFilter').value);
+        });
+
+        document.getElementById('auditDateFilter').addEventListener('change', (e) => {
+          filterAudits(audits, document.getElementById('auditActionFilter').value, e.target.value);
+        });
+
+      } catch (error) {
+        console.error('Error loading audit logs:', error);
+        document.getElementById('auditTable').innerHTML = 
+          '<tr><td colspan="5" class="error">Error loading audit logs</td></tr>';
+      }
+    }
+
+    function getAuditChanges(audit) {
+      if (audit.action === 'created') {
+        return 'Note created';
+      } else if (audit.action === 'updated') {
+        const changes = [];
+        if (audit.old_title !== audit.new_title) changes.push('Title changed');
+        if (audit.old_content !== audit.new_content) changes.push('Content changed');
+        return changes.join(', ') || 'Updated';
+      } else if (audit.action === 'deleted') {
+        return 'Note deleted';
+      }
+      return 'N/A';
+    }
+
+    function filterAudits(allAudits, action, date) {
+      const filtered = allAudits.filter(audit => {
+        const matchesAction = !action || audit.action === action;
+        const matchesDate = !date || new Date(audit.timestamp).toDateString() === new Date(date).toDateString();
+        return matchesAction && matchesDate;
+      });
+
+      const tbody = document.getElementById('auditTable');
+      tbody.innerHTML = filtered.map(audit => `
+        <tr>
+          <td>${new Date(audit.timestamp).toLocaleString()}</td>
+          <td>${audit.user_id ? audit.user_id.substring(0, 8) + '...' : 'N/A'}</td>
+          <td><span class="badge badge-${audit.action}">${audit.action}</span></td>
+          <td>${audit.new_title || audit.old_title || 'N/A'}</td>
+          <td>${getAuditChanges(audit)}</td>
+        </tr>
+      `).join('');
+    }
+
+    async function loadRecentActivity() {
+      try {
+        const { data: analytics, error } = await supabase
+          .from('usage_analytics')
+          .select('*, profiles(username)')
+          .order('created_at', { ascending: false })
+          .limit(50);
+
+        if (error) throw error;
+
+        const tbody = document.getElementById('activityTable');
+        
+        if (analytics.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4">No recent activity</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = analytics.map(event => `
+          <tr>
+            <td>${new Date(event.created_at).toLocaleString()}</td>
+            <td>${event.profiles?.username || 'Anonymous'}</td>
+            <td><span class="badge">${event.event_name}</span></td>
+            <td>${JSON.stringify(event.properties).substring(0, 100)}...</td>
+          </tr>
+        `).join('');
+
+      } catch (error) {
+        console.error('Error loading activity:', error);
+        document.getElementById('activityTable').innerHTML = 
+          '<tr><td colspan="4" class="error">Error loading activity</td></tr>';
+      }
+    }
+
+    function viewUserNotes(userId) {
+      document.getElementById('userFilter').value = userId;
+      document.getElementById('userFilter').dispatchEvent(new Event('change'));
+      document.querySelector('.admin-section:nth-child(3)').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function logout() {
+      await authService.logout();
+    }
+
+    init();
+  </script>
+
+  <style>
+    .admin-container {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .admin-section {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 2rem;
+    }
+
+    .admin-section h2 {
+      margin-bottom: 1.5rem;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+
+    .stat-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 15px;
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .stat-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 12px;
+      background: var(--accent-glow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: var(--accent);
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .stat-label {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .admin-table th,
+    .admin-table td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .admin-table th {
+      font-weight: 600;
+      color: var(--accent);
+      background: var(--glass-bg);
+    }
+
+    .admin-table tr:hover {
+      background: var(--glass-bg);
+    }
+
+    .admin-action-btn {
+      padding: 0.5rem;
+      border: none;
+      border-radius: 8px;
+      background: var(--accent-glow);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .admin-action-btn:hover {
+      background: var(--accent);
+      color: #000;
+    }
+
+    .badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      background: var(--accent-glow);
+      color: var(--text);
+    }
+
+    .badge-created { background: rgba(46, 213, 115, 0.2); color: var(--success); }
+    .badge-updated { background: rgba(112, 161, 255, 0.2); color: var(--info); }
+    .badge-deleted { background: rgba(255, 71, 87, 0.2); color: var(--error); }
+
+    .admin-notes-list {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .admin-note-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .admin-note-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .note-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .note-header h4 {
+      margin: 0;
+      color: var(--text);
+    }
+
+    .note-user {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+
+    .note-meta {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+
+    .notes-filters,
+    .audit-filters {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .admin-search,
+    .admin-select,
+    .admin-input {
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      background: var(--glass-bg);
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+
+    .admin-search {
+      flex: 1;
+      min-width: 250px;
+    }
+
+    .loading,
+    .error {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-dim);
+    }
+
+    .error {
+      color: var(--error);
+    }
+  </style>
+</body>
+</html>

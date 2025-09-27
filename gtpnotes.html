@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notes - GyroTechPro</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div class="notes-container">
+    <h1>My Notes</h1>
+
+    <!-- Semantic Search -->
+    <div class="search-section">
+      <input type="text" id="semanticSearch" placeholder="Semantic search...">
+      <button onclick="performSemanticSearch()">🔍 Search</button>
+      <button onclick="loadNotes()">Show All</button>
+    </div>
+
+    <!-- Create Note -->
+    <div class="create-note">
+      <input type="text" id="noteTitle" placeholder="Note title">
+      <textarea id="noteContent" placeholder="Note content..." rows="4"></textarea>
+      <button onclick="createNote()">Create Note</button>
+    </div>
+
+    <!-- Notes List -->
+    <div id="notesList"></div>
+  </div>
+
+  <script src="supabase-client.js"></script>
+  <script>
+    let currentUserId = null;
+
+    async function init() {
+      await authService.init();
+      
+      if (!authService.requireAuth()) return;
+
+      currentUserId = authService.getCurrentUser().id;
+      
+      // Load notes
+      await loadNotes();
+
+      // Subscribe to real-time updates
+      notesService.subscribeToNotes(currentUserId, () => {
+        loadNotes();
+      });
+    }
+
+    async function createNote() {
+      const title = document.getElementById('noteTitle').value;
+      const content = document.getElementById('noteContent').value;
+
+      if (!title || !content) {
+        alert('Please fill in both title and content');
+        return;
+      }
+
+      const result = await notesService.createNote(currentUserId, title, content);
+
+      if (result.success) {
+        document.getElementById('noteTitle').value = '';
+        document.getElementById('noteContent').value = '';
+        await loadNotes();
+      } else {
+        alert('Error creating note: ' + result.error);
+      }
+    }
+
+    async function loadNotes() {
+      const result = await notesService.getNotes(currentUserId);
+
+      if (result.success) {
+        displayNotes(result.data);
+      }
+    }
+
+    async function performSemanticSearch() {
+      const query = document.getElementById('semanticSearch').value;
+      
+      if (!query) {
+        await loadNotes();
+        return;
+      }
+
+      const result = await notesService.semanticSearch(query, currentUserId);
+
+      if (result.success) {
+        displayNotes(result.data, true);
+      }
+    }
+
+    function displayNotes(notes, showSimilarity = false) {
+      const container = document.getElementById('notesList');
+      
+      if (notes.length === 0) {
+        container.innerHTML = '<p>No notes found</p>';
+        return;
+      }
+
+      container.innerHTML = notes.map(note => `
+        <div class="note-card">
+          <h3>${note.title}</h3>
+          <p>${note.content}</p>
+          ${showSimilarity ? `<p class="similarity">Relevance: ${(note.similarity * 100).toFixed(1)}%</p>` : ''}
+          <p class="note-meta">
+            ${note.word_count || 0} words | 
+            ${new Date(note.created_at).toLocaleDateString()}
+          </p>
+          <button onclick="deleteNote('${note.id}')">Delete</button>
+        </div>
+      `).join('');
+    }
+
+    async function deleteNote(noteId) {
+      if (!confirm('Delete this note?')) return;
+
+      const result = await notesService.deleteNote(noteId);
+
+      if (result.success) {
+        await loadNotes();
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

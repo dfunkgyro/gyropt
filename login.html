@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - GyroTechPro</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-card">
+      <h1>Welcome to GyroTechPro</h1>
+      
+      <!-- Login Form -->
+      <div id="loginForm" class="auth-form">
+        <h2>Login</h2>
+        <input type="email" id="loginEmail" placeholder="Email" required>
+        <input type="password" id="loginPassword" placeholder="Password" required>
+        <button onclick="handleLogin()">Login</button>
+        <button onclick="handleGoogleLogin()" class="google-btn">
+          Sign in with Google
+        </button>
+        <p>Don't have an account? <a onclick="showSignup()">Sign up</a></p>
+      </div>
+
+      <!-- Signup Form -->
+      <div id="signupForm" class="auth-form" style="display:none;">
+        <h2>Create Account</h2>
+        <input type="text" id="signupUsername" placeholder="Username" required>
+        <input type="email" id="signupEmail" placeholder="Email" required>
+        <input type="password" id="signupPassword" placeholder="Password" required>
+        <button onclick="handleSignup()">Sign Up</button>
+        <p>Already have an account? <a onclick="showLogin()">Login</a></p>
+      </div>
+
+      <div id="authMessage" class="auth-message"></div>
+    </div>
+  </div>
+
+  <script src="supabase-client.js"></script>
+  <script>
+    function showSignup() {
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('signupForm').style.display = 'block';
+    }
+
+    function showLogin() {
+      document.getElementById('signupForm').style.display = 'none';
+      document.getElementById('loginForm').style.display = 'block';
+    }
+
+    async function handleLogin() {
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+
+      const result = await authService.loginUser(email, password);
+      
+      if (result.success) {
+        window.location.href = '/';
+      } else {
+        showMessage(result.error, 'error');
+      }
+    }
+
+    async function handleSignup() {
+      const username = document.getElementById('signupUsername').value;
+      const email = document.getElementById('signupEmail').value;
+      const password = document.getElementById('signupPassword').value;
+
+      const result = await authService.signUpUser(email, password, username);
+      
+      if (result.success) {
+        showMessage('Account created! Please check your email to verify.', 'success');
+        setTimeout(() => window.location.href = '/', 2000);
+      } else {
+        showMessage(result.error, 'error');
+      }
+    }
+
+    async function handleGoogleLogin() {
+      const result = await authService.signInWithGoogle();
+      if (!result.success) {
+        showMessage(result.error, 'error');
+      }
+    }
+
+    function showMessage(message, type) {
+      const msgEl = document.getElementById('authMessage');
+      msgEl.textContent = message;
+      msgEl.className = `auth-message ${type}`;
+    }
+
+    // Redirect if already logged in
+    authService.init().then(() => {
+      if (authService.isAuthenticated()) {
+        window.location.href = '/';
+      }
+    });
+  </script>
+</body>
+</html>

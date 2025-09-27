@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile - GyroTechPro</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div class="profile-container">
+    <div class="profile-card">
+      <h1>My Profile</h1>
+      
+      <div class="avatar-section">
+        <img id="avatarPreview" src="" alt="Avatar" class="avatar">
+        <input type="file" id="avatarInput" accept="image/*" onchange="handleAvatarUpload()">
+        <button onclick="document.getElementById('avatarInput').click()">
+          Upload Avatar
+        </button>
+      </div>
+
+      <div class="profile-form">
+        <label>Username</label>
+        <input type="text" id="username" required>
+
+        <label>Bio</label>
+        <textarea id="bio" rows="4"></textarea>
+
+        <label>Role</label>
+        <input type="text" id="role" readonly>
+
+        <button onclick="updateProfile()">Save Changes</button>
+        <button onclick="viewAnalytics()">View Analytics</button>
+      </div>
+
+      <div id="analyticsDisplay" style="display:none;">
+        <h2>Your Analytics</h2>
+        <div id="analyticsContent"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="supabase-client.js"></script>
+  <script>
+    let currentProfile = null;
+
+    async function init() {
+      await authService.init();
+      
+      if (!authService.requireAuth()) return;
+
+      currentProfile = authService.getCurrentProfile();
+      
+      // Load profile data
+      document.getElementById('username').value = currentProfile.username || '';
+      document.getElementById('bio').value = currentProfile.bio || '';
+      document.getElementById('role').value = currentProfile.role || '';
+      
+      if (currentProfile.avatar_url) {
+        document.getElementById('avatarPreview').src = currentProfile.avatar_url;
+      }
+    }
+
+    async function handleAvatarUpload() {
+      const file = document.getElementById('avatarInput').files[0];
+      if (!file) return;
+
+      const result = await profileService.uploadAvatar(
+        authService.getCurrentUser().id,
+        file
+      );
+
+      if (result.success) {
+        document.getElementById('avatarPreview').src = result.url;
+        alert('Avatar uploaded successfully!');
+      } else {
+        alert('Upload failed: ' + result.error);
+      }
+    }
+
+    async function updateProfile() {
+      const updates = {
+        username: document.getElementById('username').value,
+        bio: document.getElementById('bio').value
+      };
+
+      const result = await profileService.updateProfile(
+        authService.getCurrentUser().id,
+        updates
+      );
+
+      if (result.success) {
+        alert('Profile updated successfully!');
+        currentProfile = result.data;
+      } else {
+        alert('Update failed: ' + result.error);
+      }
+    }
+
+    async function viewAnalytics() {
+      const result = await analyticsService.getUserAnalytics(
+        authService.getCurrentUser().id
+      );
+
+      if (result.success) {
+        const display = document.getElementById('analyticsDisplay');
+        const content = document.getElementById('analyticsContent');
+        
+        content.innerHTML = `
+          <p><strong>Total Notes:</strong> ${result.data.total_notes}</p>
+          <p><strong>Total Favorites:</strong> ${result.data.total_favorites}</p>
+          <p><strong>Total Searches:</strong> ${result.data.total_searches}</p>
+          <p><strong>Average Note Length:</strong> ${Math.round(result.data.avg_note_length)} words</p>
+        `;
+        
+        display.style.display = 'block';
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
