@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Authenticating...</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-card" style="text-align: center;">
+      <h2>Authenticating...</h2>
+      <p>Please wait while we complete your sign in.</p>
+      <div style="margin: 2rem 0;">
+        <i class="fas fa-spinner fa-spin" style="font-size: 3rem; color: var(--accent);"></i>
+      </div>
+      <p id="statusMessage" style="color: var(--text-dim);"></p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-client.js"></script>
+
+  <script>
+    (async function handleOAuthCallback() {
+      const statusEl = document.getElementById('statusMessage');
+
+      try {
+        statusEl.textContent = 'Processing authentication...';
+
+        // Wait for authService
+        let attempts = 0;
+        while (typeof authService === 'undefined' && attempts < 50) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          attempts++;
+        }
+
+        if (typeof authService === 'undefined') {
+          throw new Error('Authentication service failed to load');
+        }
+
+        // Get the session from the URL hash
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const accessToken = hashParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token');
+
+        if (accessToken) {
+          statusEl.textContent = 'Setting up your session...';
+
+          // Set the session in Supabase
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+
+          if (error) throw error;
+
+          // Get or create profile
+          if (data.user) {
+            const userId = data.user.id;
+            const email = data.user.email;
+            const username = data.user.user_metadata?.full_name ||
+                           email.split('@')[0] ||
+                           'user' + Date.now();
+
+            statusEl.textContent = 'Creating your profile...';
+
+            // Check if profile exists
+            const { data: existingProfile } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', userId)
+              .single();
+
+            if (!existingProfile) {
+              // Create profile
+              const { error: profileError } = await supabase
+                .from('profiles')
+                .insert([{
+                  id: userId,
+                  username: username,
+                  role: 'user'
+                }]);
+
+              if (profileError) {
+                console.error('Profile creation error:', profileError);
+              }
+            }
+
+            statusEl.textContent = 'Success! Redirecting...';
+
+            // Redirect to home
+            setTimeout(() => {
+              window.location.href = '/';
+            }, 1000);
+          }
+        } else {
+          throw new Error('No access token found in callback');
+        }
+
+      } catch (error) {
+        console.error('OAuth callback error:', error);
+        statusEl.textContent = 'Authentication failed: ' + error.message;
+        statusEl.style.color = 'var(--error)';
+
+        // Redirect back to login after 3 seconds
+        setTimeout(() => {
+          window.location.href = '/login.html';
+        }, 3000);
+      }
+    })();
+  </script>
+</body>
+</html>
